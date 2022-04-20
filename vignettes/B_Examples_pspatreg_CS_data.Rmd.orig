@@ -235,7 +235,7 @@ summary(linslx)
 
 Now we compute impacts for the SLX model. In this case, contrary to the case of the SAR and SDM models, we do not need simulations to make inference on these marginal impacts. We only need to properly compute the variance of total impact using this formula:  
 
-$$ Var(\hat{\beta_k}\_{tot}) = Var(\hat{\beta}) + Var(\hat{\delta}) + 2* Cov(\hat{\beta}, \hat{\delta}) $$
+$$ Var(\hat{\beta_k})\_{tot} = Var(\hat{\beta_k}) + Var(\hat{\delta_k}) + 2* Cov(\hat{\beta_k}, \hat{\delta_k}) $$
 
 ```{r}
 imp_parvar_slx <- impactspar(linslx, listw = listW)
@@ -262,7 +262,7 @@ sptpreg_direct = summary(imp_parvar_slx)$mimpacts[,1]), 3)
 # Let's compare indirect impacts
 round(data.frame(spatialreg_indirect = summary(SLX.impact)$impacts$indirect, 
 sptpreg_indirect = summary(imp_parvar_slx)$mimpacts[,2]), 3)
-# Let's compare indirect impacts
+# Let's compare total impacts
 round(data.frame(spatialreg_total = summary(SLX.impact)$impacts$total, 
 sptpreg_total = summary(imp_parvar_slx)$mimpacts[,3]), 3)
 ```

@@ -12,11 +12,23 @@
 
 <meta name="author" content="Román Mínguez (UCLM), Roberto Basile (UNIVAQ), María Durbán (UC3M)" />
 
-<meta name="date" content="2022-04-09" />
+<meta name="date" content="2022-04-20" />
 
 <title>An introduction to pspatreg</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -150,7 +162,187 @@ div.csl-indent {
 }
 </style>
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -163,28 +355,37 @@ div.csl-indent {
 
 
 <h1 class="title toc-ignore">An introduction to pspatreg</h1>
-<h4 class="author">Román Mínguez (UCLM), Roberto Basile (UNIVAQ), María Durbán (UC3M)</h4>
-<h4 class="date">2022-04-09</h4>
+<h4 class="author">Román Mínguez (UCLM), Roberto Basile (UNIVAQ), María
+Durbán (UC3M)</h4>
+<h4 class="date">2022-04-20</h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a>
+<li><a href="#introduction"><span class="toc-section-number">1</span>
+Introduction</a>
 <ul>
-<li><a href="#the-semiparametric-spatial-autoregressive-model"><span class="toc-section-number">1.1</span> The semiparametric spatial autoregressive model</a></li>
-<li><a href="#computational-approach-to-estimation"><span class="toc-section-number">1.2</span> Computational approach to estimation</a></li>
-<li><a href="#installation"><span class="toc-section-number">1.3</span> Installation</a></li>
+<li><a href="#the-semiparametric-spatial-autoregressive-model"><span class="toc-section-number">1.1</span> The semiparametric spatial
+autoregressive model</a></li>
+<li><a href="#computational-approach-to-estimation"><span class="toc-section-number">1.2</span> Computational approach to
+estimation</a></li>
+<li><a href="#installation"><span class="toc-section-number">1.3</span>
+Installation</a></li>
 </ul></li>
 <li><a href="#basic-information-on-the-package"><span class="toc-section-number">2</span> Basic information on the package</a>
 <ul>
-<li><a href="#the-function-pspatfit"><span class="toc-section-number">2.1</span> The function <code>pspatfit()</code></a>
+<li><a href="#the-function-pspatfit"><span class="toc-section-number">2.1</span> The function
+<code>pspatfit()</code></a>
 <ul>
-<li><a href="#the-argument-formula"><span class="toc-section-number">2.1.1</span> The argument <code>formula</code></a></li>
-<li><a href="#the-argument-type"><span class="toc-section-number">2.1.2</span> The argument <code>Type</code></a></li>
+<li><a href="#the-argument-formula"><span class="toc-section-number">2.1.1</span> The argument
+<code>formula</code></a></li>
+<li><a href="#the-argument-type"><span class="toc-section-number">2.1.2</span> The argument
+<code>Type</code></a></li>
 <li><a href="#data-structure"><span class="toc-section-number">2.1.3</span> Data structure</a></li>
 </ul></li>
 <li><a href="#plotting-smooth-terms"><span class="toc-section-number">2.2</span> Plotting smooth terms</a></li>
-<li><a href="#computing-marginal-impacts"><span class="toc-section-number">2.3</span> Computing marginal impacts</a></li>
+<li><a href="#computing-marginal-impacts"><span class="toc-section-number">2.3</span> Computing marginal
+impacts</a></li>
 </ul></li>
 <li><a href="#references">References</a></li>
 </ul>
@@ -192,162 +393,477 @@ div.csl-indent {
 
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p><strong>pspatreg</strong> is a package that fits penalized spline (PS) semiparametric static and dynamic spatial autoregressive models via Restricted (or Residual) Maximum Likelihood (REML) and Maximum Likelihood (ML). This approach combines penalized regression spline methods <span class="citation">(Paul HC Eilers, Marx, and Durbán 2015)</span> with standard spatial autoregressive models (such as SAR, SEM and SDM). These types of models are thoroughly discussed in <span class="citation">Mı́nguez, Basile, and Durbán (2020)</span>; see also <span class="citation">Montero, Mı́nguez, and Durbán (2012)</span>, <span class="citation">Basile et al. (2014)</span>, and <span class="citation">Hoshino (2018)</span>.</p>
-<p>These models are very flexible since they make it possible to include within the same specification: <em>i</em>) spatial autoregressive terms (i.e. spatial lags of dependent and independent variables as well as spatial error terms) to capture spatial interaction or network effects; <em>ii</em>) time lags of the dependent variable to capture persistence effects; <em>iii</em>) parametric and nonparametric (smooth) terms to identify nonlinear relationships between the response variable and the covariates; <em>iv</em>) a spatio-temporal trend, i.e. a smooth interaction between the spatial coordinates and the time trend, to capture site-specific nonlinear time trends.</p>
-<p>The proposed method also allows the user to apply an ANOVA decomposition of the spatio-temporal trend into several components (spatial and temporal main effects, and second- and third-order interactions between them), which gives further insights into the dynamics of the data. Thus, we use the acronym PS-ANOVA-SAR (SEM, SDM, SLX) for the new data generating process (DGP) proposed. The use of nested B-spline bases for the interaction components of the spatio-temporal trend contributes to the efficiency of the fitting procedure without compromising the goodness of fit of the model. Finally, we also consider an extension of the PS-ANOVA-SAR (SEM, SDM, SLX) including the time lag of the dependent variable (dynamic spatial model) and/or a first-order time series autoregressive term process (AR1) in the noise to accommodate residual serial correlation.</p>
+<p><strong>pspatreg</strong> is a package that fits penalized spline
+(PS) semiparametric static and dynamic spatial autoregressive models via
+Restricted (or Residual) Maximum Likelihood (REML) and Maximum
+Likelihood (ML). This approach combines penalized regression spline
+methods <span class="citation">(Paul HC Eilers, Marx, and Durbán
+2015)</span> with standard spatial autoregressive models (such as SAR,
+SEM and SDM). These types of models are thoroughly discussed in <span class="citation">Mı́nguez, Basile, and Durbán (2020)</span>; see also
+<span class="citation">Montero, Mı́nguez, and Durbán (2012)</span>, <span class="citation">Basile et al. (2014)</span>, and <span class="citation">Hoshino (2018)</span>.</p>
+<p>These models are very flexible since they make it possible to include
+within the same specification: <em>i</em>) spatial autoregressive terms
+(i.e. spatial lags of dependent and independent variables as well as
+spatial error terms) to capture spatial interaction or network effects;
+<em>ii</em>) time lags of the dependent variable to capture persistence
+effects; <em>iii</em>) parametric and nonparametric (smooth) terms to
+identify nonlinear relationships between the response variable and the
+covariates; <em>iv</em>) a spatio-temporal trend, i.e. a smooth
+interaction between the spatial coordinates and the time trend, to
+capture site-specific nonlinear time trends.</p>
+<p>The proposed method also allows the user to apply an ANOVA
+decomposition of the spatio-temporal trend into several components
+(spatial and temporal main effects, and second- and third-order
+interactions between them), which gives further insights into the
+dynamics of the data. Thus, we use the acronym PS-ANOVA-SAR (SEM, SDM,
+SLX) for the new data generating process (DGP) proposed. The use of
+nested B-spline bases for the interaction components of the
+spatio-temporal trend contributes to the efficiency of the fitting
+procedure without compromising the goodness of fit of the model.
+Finally, we also consider an extension of the PS-ANOVA-SAR (SEM, SDM,
+SLX) including the time lag of the dependent variable (dynamic spatial
+model) and/or a first-order time series autoregressive term process
+(AR1) in the noise to accommodate residual serial correlation.</p>
 <div id="the-semiparametric-spatial-autoregressive-model" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> The semiparametric spatial autoregressive model</h2>
-<p>In a very general form, the semiparametric spatial autoregressive model reads as:</p>
-<p><span class="math display">\[ y_{it}=\alpha y_{it-1}+\rho \sum_{j=1}^N w_{ij,N} y_{jt} + \pi \sum_{j=1}^N w_{ij,N} y_{jt-1}+ \\
-\sum_{k=1}^K \beta^*_k x^*_{k,it} + \sum_{k=1}^K \gamma^*_k \sum_{j=1}^N w_{ij,N} x^*_{k,jt}+
-\sum_{\delta=1}^\Delta g_\delta(x_{\delta, it}) + \sum_{\delta=1}^\Delta h_\delta\left(\sum_{j=1}^N w_{ij,N} x_{\delta,jt}\right) + \\
+<h2><span class="header-section-number">1.1</span> The semiparametric
+spatial autoregressive model</h2>
+<p>In a very general form, the semiparametric spatial autoregressive
+model reads as:</p>
+<p><span class="math display">\[ y_{it}=\alpha y_{it-1}+\rho
+\sum_{j=1}^N w_{ij,N} y_{jt} + \pi \sum_{j=1}^N w_{ij,N} y_{jt-1}+ \\
+\sum_{k=1}^K \beta^*_k x^*_{k,it} + \sum_{k=1}^K \gamma^*_k \sum_{j=1}^N
+w_{ij,N} x^*_{k,jt}+
+\sum_{\delta=1}^\Delta g_\delta(x_{\delta, it}) + \sum_{\delta=1}^\Delta
+h_\delta\left(\sum_{j=1}^N w_{ij,N} x_{\delta,jt}\right) + \\
 \widetilde{ f}(s_{1i},s_{2i},\tau_t)+\epsilon_{it} \]</span></p>
-<p><span class="math display">\[\epsilon_{it}=\theta \sum_{j=1}^N w_{ij,N}\epsilon_{jt}+\phi \epsilon_{it-1}+u_{it}\]</span> <span class="math display">\[u_{it} \sim i.i.d.(0,\sigma^2_u)\]</span></p>
-<p>where <span class="math inline">\((y_{it},x^*_{1,it},...,x^*_{K,it},x_{1,it},...,,x_{\Delta,it})\)</span> are data observed for a sample of spatial units <span class="math inline">\(i\)</span> (<span class="math inline">\(i=1,...,N\)</span>) in each time period <span class="math inline">\(t=1,...,T\)</span>. The terms <span class="math inline">\((s_{1i},s_{2i})\)</span> indicate the spatial coordinates (latitude and longitude) of the spatial unit <span class="math inline">\(i\)</span> (either a spatial point or the centroid of a spatial polygon), and <span class="math inline">\(W_{ij}\)</span> is an element of a row-standardized spatial weights matrix. The terms included into the model are:</p>
+<p><span class="math display">\[\epsilon_{it}=\theta \sum_{j=1}^N
+w_{ij,N}\epsilon_{jt}+\phi \epsilon_{it-1}+u_{it}\]</span> <span class="math display">\[u_{it} \sim i.i.d.(0,\sigma^2_u)\]</span></p>
+<p>where <span class="math inline">\((y_{it},x^*_{1,it},...,x^*_{K,it},x_{1,it},...,,x_{\Delta,it})\)</span>
+are data observed for a sample of spatial units <span class="math inline">\(i\)</span> (<span class="math inline">\(i=1,...,N\)</span>) in each time period <span class="math inline">\(t=1,...,T\)</span>. The terms <span class="math inline">\((s_{1i},s_{2i})\)</span> indicate the spatial
+coordinates (latitude and longitude) of the spatial unit <span class="math inline">\(i\)</span> (either a spatial point or the centroid
+of a spatial polygon), and <span class="math inline">\(W_{ij}\)</span>
+is an element of a row-standardized spatial weights matrix. The terms
+included into the model are:</p>
 <ul>
-<li><p><span class="math inline">\(y_{it-1}\)</span> = the time lag of <span class="math inline">\(y_{it}\)</span>;</p></li>
-<li><p><span class="math inline">\(\sum_{j=1}^N w_{ij,N} y_{it}\)</span> = the contemporaneous spatial lag of <span class="math inline">\(y_{it}\)</span>;</p></li>
-<li><p><span class="math inline">\(\sum_{j=1}^N w_{ij,N} y_{it-1}\)</span> = the time lag of the spatial lag of <span class="math inline">\(y_{it}\)</span>;</p></li>
+<li><p><span class="math inline">\(y_{it-1}\)</span> = the time lag of
+<span class="math inline">\(y_{it}\)</span>;</p></li>
+<li><p><span class="math inline">\(\sum_{j=1}^N w_{ij,N} y_{it}\)</span>
+= the contemporaneous spatial lag of <span class="math inline">\(y_{it}\)</span>;</p></li>
+<li><p><span class="math inline">\(\sum_{j=1}^N w_{ij,N}
+y_{it-1}\)</span> = the time lag of the spatial lag of <span class="math inline">\(y_{it}\)</span>;</p></li>
 <li><p><span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\rho\)</span>, <span class="math inline">\(\pi\)</span>, <span class="math inline">\(\beta^*_k\)</span>, and <span class="math inline">\(\gamma^*_k\)</span> = fixed parameters;</p></li>
-<li><p><span class="math inline">\(\sum_{k=1}^K \beta^*_k x^*_{k,it}\)</span> and <span class="math inline">\(\sum_{k=1}^K \gamma^*_k \sum_{j=1}^N w_{ij,N} x^*_{k,jt}\)</span> = parametric linear terms of some covariates <span class="math inline">\(x_{k,it}\)</span> and of their spatial lags;</p></li>
-<li><p><span class="math inline">\(g_\delta(.)\)</span> and <span class="math inline">\(h_\gamma(.)\)</span> = nonparametric smooth functions of other covariates and of their spatial lags (they can also accommodate varying coefficient terms, smooth interaction between covariates, factor-by-curve intercations, and so on);</p></li>
-<li><p><span class="math inline">\(\widetilde{ f}(s_{1i},s_{2i},\tau_t)\)</span> = an unknown nonparametric spatio-temporal trend;</p></li>
-<li><p><span class="math inline">\(\epsilon_{it}\)</span> = an idiosyncratic error term that can follow a spatial autoregressive process <span class="math inline">\(\epsilon_{it}=\theta \sum_{j=1}^N w_{ij,N}\epsilon_{it}+u_{it}\)</span> with <span class="math inline">\(u_{it}\sim N(0,\sigma^2)\)</span> (SEM), a time series autoregressive AR(1) process, i.e., <span class="math inline">\(\epsilon_{it}=\phi \epsilon_{it-1}+u_{it}\)</span> with <span class="math inline">\(u_{it}\sim N(0,\sigma^2)\)</span>, or both.</p></li>
+<li><p><span class="math inline">\(\sum_{k=1}^K \beta^*_k
+x^*_{k,it}\)</span> and <span class="math inline">\(\sum_{k=1}^K
+\gamma^*_k \sum_{j=1}^N w_{ij,N} x^*_{k,jt}\)</span> = parametric linear
+terms of some covariates <span class="math inline">\(x_{k,it}\)</span>
+and of their spatial lags;</p></li>
+<li><p><span class="math inline">\(g_\delta(.)\)</span> and <span class="math inline">\(h_\gamma(.)\)</span> = nonparametric smooth
+functions of other covariates and of their spatial lags (they can also
+accommodate varying coefficient terms, smooth interaction between
+covariates, factor-by-curve intercations, and so on);</p></li>
+<li><p><span class="math inline">\(\widetilde{
+f}(s_{1i},s_{2i},\tau_t)\)</span> = an unknown nonparametric
+spatio-temporal trend;</p></li>
+<li><p><span class="math inline">\(\epsilon_{it}\)</span> = an
+idiosyncratic error term that can follow a spatial autoregressive
+process <span class="math inline">\(\epsilon_{it}=\theta \sum_{j=1}^N
+w_{ij,N}\epsilon_{it}+u_{it}\)</span> with <span class="math inline">\(u_{it}\sim N(0,\sigma^2)\)</span> (SEM), a time
+series autoregressive AR(1) process, i.e., <span class="math inline">\(\epsilon_{it}=\phi \epsilon_{it-1}+u_{it}\)</span>
+with <span class="math inline">\(u_{it}\sim N(0,\sigma^2)\)</span>, or
+both.</p></li>
 </ul>
-<p>Obviously, this very general specification is hardly suitable in real data applications. However, it is worth noticing that it nests most of the spatial additive models which can be used in practice. For example, a more suitable semiparametric static model reads as:</p>
-<p><span class="math display">\[y_{it}=\rho \sum_{j=1}^N w_{ij,N} y_{jt} + 
-\sum_{k=1}^K \beta^*_k x^*_{k,it} + 
+<p>Obviously, this very general specification is hardly suitable in real
+data applications. However, it is worth noticing that it nests most of
+the spatial additive models which can be used in practice. For example,
+a more suitable semiparametric static model reads as:</p>
+<p><span class="math display">\[y_{it}=\rho \sum_{j=1}^N w_{ij,N} y_{jt}
++
+\sum_{k=1}^K \beta^*_k x^*_{k,it} +
 \sum_{\delta=1}^\Delta g_\delta(x_{\delta, it}) +
 \widetilde{ f}(s_{1i},s_{2i},\tau_t)+\epsilon_{it}\]</span></p>
-<p><span class="math display">\[\epsilon_{it}=\phi \epsilon_{it-1}+u_{it}\]</span> <span class="math display">\[u_{it} \sim i.i.d.(0,\sigma^2_u)\]</span> This semiparametric SAR model turns out to be extremely useful to capture interactive spatial and temporal unobserved heterogeneity when the last one is smoothly distributed over space and time <span class="citation">(Mı́nguez, Basile, and Durbán 2020)</span>. The dynamic extension (including <span class="math inline">\(y_{it-1}\)</span> and <span class="math inline">\(\sum_{j=1}^N w_{ij,N} y_{it-1}\)</span>) is also very promising and merits further theoretical investigation. Finally, the following semiparametric SAR model is very useful for modeling cross-setional spatial data taking into account nonlinearities, spatial dependence and spatial heterogeneity:</p>
-<p><span class="math display">\[y_{i}=\rho \sum_{j=1}^N w_{ij,N} y_{j} + \sum_{k=1}^K \beta^*_k x^*_{k,i} + \sum_{\delta=1}^\Delta g_\delta(x_{\delta, i}) + 
+<p><span class="math display">\[\epsilon_{it}=\phi
+\epsilon_{it-1}+u_{it}\]</span> <span class="math display">\[u_{it} \sim
+i.i.d.(0,\sigma^2_u)\]</span> This semiparametric SAR model turns out to
+be extremely useful to capture interactive spatial and temporal
+unobserved heterogeneity when the last one is smoothly distributed over
+space and time <span class="citation">(Mı́nguez, Basile, and Durbán
+2020)</span>. The dynamic extension (including <span class="math inline">\(y_{it-1}\)</span> and <span class="math inline">\(\sum_{j=1}^N w_{ij,N} y_{it-1}\)</span>) is also
+very promising and merits further theoretical investigation. Finally,
+the following semiparametric SAR model is very useful for modeling
+cross-setional spatial data taking into account nonlinearities, spatial
+dependence and spatial heterogeneity:</p>
+<p><span class="math display">\[y_{i}=\rho \sum_{j=1}^N w_{ij,N} y_{j} +
+\sum_{k=1}^K \beta^*_k x^*_{k,i} + \sum_{\delta=1}^\Delta
+g_\delta(x_{\delta, i}) +
 \widetilde{ f}(s_{1i},s_{2i})+\epsilon_{i}\]</span></p>
-<p><span class="math display">\[\epsilon_{i}\sim i.i.d.(0,\sigma^2_\epsilon)\]</span> In many situations the spatio-temporal trend to be estimated can be complex, and the use of a single multidimensional smooth function may not be flexible enough to capture the structure in the data. To solve this problem, an ANOVA-type decomposition of <span class="math inline">\(\widetilde{ f}(s_{1i},s_{2i},\tau_t)\)</span> can be used, where spatial and temporal main effects, and second- and third-order interactions between them can be identified:</p>
-<p><span class="math display">\[\widetilde{ f}(s_{1i},s_{2i},\tau_t)=f_1(s_{1i})+f_2(s_{2i})+f_{\tau}(\tau_t)+ \\ f_{1,2}(s_{1i},s_{2i})+f_{1,\tau}(s_{1i},\tau_t)+f_{2,\tau}+(s_{2i},\tau_t)+f_{1,2,\tau}(s_{1i},s_{2i},\tau_t)\]</span></p>
-<p>First, the geoadditive terms given by <span class="math inline">\(f_1(s_{1i}),f_2(s_{2i}),f_{1,2}(s_{1i},s_{2i})\)</span> work as control functions to filter the spatial trend out of the residuals, and transfer it to the mean response in a model specification. Thus, they make it possible to capture the shape of the spatial distribution of <span class="math inline">\(y_{it}\)</span>, conditional on the determinants included in the model. These control functions also isolate stochastic spatial dependence in the residuals, that is<span style="color: blue;">,</span> spatially autocorrelated unobserved heterogeneity. Thus, they can be regarded as an alternative to the use of individual regional dummies to capture unobserved heterogeneity, as long as such heterogeneity is smoothly distributed over space. Regional dummies peak at significantly higher and lower levels of the mean response variable. If these peaks are smoothly distributed over a two-dimensional surface (i.e., if unobserved heterogeneity is spatially autocorrelated), the smooth spatial trend is able to capture them.</p>
-<p>Second, the smooth time trend, <span class="math inline">\(f_{\tau}(\tau_t)\)</span>, and the smooth interactions between space and time - <span class="math inline">\(f_{1,\tau}(s_{1i},\tau_t),f_{2,\tau},(s_{2i},\tau_t),f_{1,2,\tau}(s_{1i},s_{2i},\tau_t)\)</span> - work as control functions to capture the heterogeneous effect of common shocks. Thus, conditional on a smooth distribution of the spatio-temporal heterogeneity, the PS-ANOVA-SAR (SDM, SEM, SLX) model works as an alternative to the models proposed by <span class="citation">Bai and Li (2013)</span>, <span class="citation">Shi and Lee (2018)</span>, <span class="citation">Pesaran and Tosetti (2011)</span>, <span class="citation">Bailey, Holly, and Pesaran (2016)</span> and <span class="citation">Vega and Elhorst (2016)</span> based on extensions of common factor models to accommodate both strong cross-sectional dependence (through the estimation of the spatio-temporal trend) and weak cross-sectional dependence (through the estimation of spatial autoregressive parameters).</p>
-<p>Furthermore, this framework is also flexible enough to control for the linear and nonlinear functional relationships between the dependent variable and the covariates as well as the heterogeneous effects of these regressors across space. The model inherits all the good properties of penalized regression splines, such as coping with missing observations by appropriately weighting them, and straightforward interpolation of the smooth functions.</p>
+<p><span class="math display">\[\epsilon_{i}\sim
+i.i.d.(0,\sigma^2_\epsilon)\]</span> In many situations the
+spatio-temporal trend to be estimated can be complex, and the use of a
+single multidimensional smooth function may not be flexible enough to
+capture the structure in the data. To solve this problem, an ANOVA-type
+decomposition of <span class="math inline">\(\widetilde{
+f}(s_{1i},s_{2i},\tau_t)\)</span> can be used, where spatial and
+temporal main effects, and second- and third-order interactions between
+them can be identified:</p>
+<p><span class="math display">\[\widetilde{
+f}(s_{1i},s_{2i},\tau_t)=f_1(s_{1i})+f_2(s_{2i})+f_{\tau}(\tau_t)+ \\
+f_{1,2}(s_{1i},s_{2i})+f_{1,\tau}(s_{1i},\tau_t)+f_{2,\tau}+(s_{2i},\tau_t)+f_{1,2,\tau}(s_{1i},s_{2i},\tau_t)\]</span></p>
+<p>First, the geoadditive terms given by <span class="math inline">\(f_1(s_{1i}),f_2(s_{2i}),f_{1,2}(s_{1i},s_{2i})\)</span>
+work as control functions to filter the spatial trend out of the
+residuals, and transfer it to the mean response in a model
+specification. Thus, they make it possible to capture the shape of the
+spatial distribution of <span class="math inline">\(y_{it}\)</span>,
+conditional on the determinants included in the model. These control
+functions also isolate stochastic spatial dependence in the residuals,
+that is<span style="color: blue;">,</span> spatially autocorrelated
+unobserved heterogeneity. Thus, they can be regarded as an alternative
+to the use of individual regional dummies to capture unobserved
+heterogeneity, as long as such heterogeneity is smoothly distributed
+over space. Regional dummies peak at significantly higher and lower
+levels of the mean response variable. If these peaks are smoothly
+distributed over a two-dimensional surface (i.e., if unobserved
+heterogeneity is spatially autocorrelated), the smooth spatial trend is
+able to capture them.</p>
+<p>Second, the smooth time trend, <span class="math inline">\(f_{\tau}(\tau_t)\)</span>, and the smooth
+interactions between space and time - <span class="math inline">\(f_{1,\tau}(s_{1i},\tau_t),f_{2,\tau},(s_{2i},\tau_t),f_{1,2,\tau}(s_{1i},s_{2i},\tau_t)\)</span>
+- work as control functions to capture the heterogeneous effect of
+common shocks. Thus, conditional on a smooth distribution of the
+spatio-temporal heterogeneity, the PS-ANOVA-SAR (SDM, SEM, SLX) model
+works as an alternative to the models proposed by <span class="citation">Bai and Li (2013)</span>, <span class="citation">Shi
+and Lee (2018)</span>, <span class="citation">Pesaran and Tosetti
+(2011)</span>, <span class="citation">Bailey, Holly, and Pesaran
+(2016)</span> and <span class="citation">Vega and Elhorst (2016)</span>
+based on extensions of common factor models to accommodate both strong
+cross-sectional dependence (through the estimation of the
+spatio-temporal trend) and weak cross-sectional dependence (through the
+estimation of spatial autoregressive parameters).</p>
+<p>Furthermore, this framework is also flexible enough to control for
+the linear and nonlinear functional relationships between the dependent
+variable and the covariates as well as the heterogeneous effects of
+these regressors across space. The model inherits all the good
+properties of penalized regression splines, such as coping with missing
+observations by appropriately weighting them, and straightforward
+interpolation of the smooth functions.</p>
 </div>
 <div id="computational-approach-to-estimation" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Computational approach to estimation</h2>
-<p>All the non-parametric terms are modeled using Penalized-splines (P-Splines, <span class="citation">P. H. Eilers and Marx (1996)</span>). This methodology assumes that the unknown function to be estimated is smooth, and can be represented as a linear combination of basis functions,</p>
-<p><span class="math display">\[f(x)=\sum_j \theta_j B_j(x),\]</span> a popular election is the use of cubic B-spline basis <span class="citation">(De Boor 1977)</span>. In the case of multidimensional functions, the basis is calculated as tensor products of the marginal basis functions in each dimension. The smoohness of the curve/surface is controlled by adding to the likelihood a penalty tunned by a smoothing parameter, <span class="math inline">\(\lambda\)</span> (the number of smoothing parameters used is equal to the dimension of the function to be estimated). The penalty can take many forms, depending of the prior knowledge on the curve/surface. The most common choice is to use second order differences on adjacent B-spline coefficients <span class="citation">(see Mı́nguez, Basile, and Durbán 2020)</span>. In the case of a univariate function, <span class="math inline">\(f(x)\)</span>, the penalty is:</p>
-<p><span class="math display">\[ Penalty= \lambda\sum_j \left ( \theta_j-2\theta_{j-1}+\theta_{j-2}\right )^2.\]</span></p>
-<p>As we mentioned above, the model is estimated via REML or ML. In order to be able to estimate simultaneously all parameters in the model (including the smothing parameters) we make use of the fact that a P-spline can be reparameterized as a mixed model, and so, all the methodology debeloped in this context can be use for estimation and inference. Furthermore, the mixed model setting allows us to impose the necessary constraints so that all terms in the model are identifiable, as well as, to add spatial (or other) random effects if they are necessary.</p>
-<p>To speed up computations, we use a modification of the SOP (Separation of Anisotropic Penalties) algorithm derived by <span class="citation">Rodriguez-Alvarez et al. (2015)</span> (for variance components estimation). Also, the use of nested B-spline bases <span class="citation">(Lee, Durban, and Eilers 2013)</span> for the interaction components of the spatio-temporal trend contributes to the efficiency of the fitting procedure without compromising the goodness of fit of the model. See <span class="citation">Mı́nguez, Basile, and Durbán (2020)</span> for more details.</p>
+<h2><span class="header-section-number">1.2</span> Computational
+approach to estimation</h2>
+<p>All the non-parametric terms are modeled using Penalized-splines
+(P-Splines, <span class="citation">P. H. Eilers and Marx (1996)</span>).
+This methodology assumes that the unknown function to be estimated is
+smooth, and can be represented as a linear combination of basis
+functions,</p>
+<p><span class="math display">\[f(x)=\sum_j \theta_j B_j(x),\]</span> a
+popular election is the use of cubic B-spline basis <span class="citation">(De Boor 1977)</span>. In the case of multidimensional
+functions, the basis is calculated as tensor products of the marginal
+basis functions in each dimension. The smoohness of the curve/surface is
+controlled by adding to the likelihood a penalty tunned by a smoothing
+parameter, <span class="math inline">\(\lambda\)</span> (the number of
+smoothing parameters used is equal to the dimension of the function to
+be estimated). The penalty can take many forms, depending of the prior
+knowledge on the curve/surface. The most common choice is to use second
+order differences on adjacent B-spline coefficients <span class="citation">(see Mı́nguez, Basile, and Durbán 2020)</span>. In the
+case of a univariate function, <span class="math inline">\(f(x)\)</span>, the penalty is:</p>
+<p><span class="math display">\[ Penalty= \lambda\sum_j \left (
+\theta_j-2\theta_{j-1}+\theta_{j-2}\right )^2.\]</span></p>
+<p>As we mentioned above, the model is estimated via REML or ML. In
+order to be able to estimate simultaneously all parameters in the model
+(including the smothing parameters) we make use of the fact that a
+P-spline can be reparameterized as a mixed model, and so, all the
+methodology debeloped in this context can be use for estimation and
+inference. Furthermore, the mixed model setting allows us to impose the
+necessary constraints so that all terms in the model are identifiable,
+as well as, to add spatial (or other) random effects if they are
+necessary.</p>
+<p>To speed up computations, we use a modification of the SOP
+(Separation of Anisotropic Penalties) algorithm derived by <span class="citation">Rodriguez-Alvarez et al. (2015)</span> (for variance
+components estimation). Also, the use of nested B-spline bases <span class="citation">(Lee, Durban, and Eilers 2013)</span> for the
+interaction components of the spatio-temporal trend contributes to the
+efficiency of the fitting procedure without compromising the goodness of
+fit of the model. See <span class="citation">Mı́nguez, Basile, and Durbán
+(2020)</span> for more details.</p>
 </div>
 <div id="installation" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Installation</h2>
-<p>This package is available in GitHub (<a href="https://github.com/rominsal/pspatreg" class="uri">https://github.com/rominsal/pspatreg</a>) and can be installed in the usual way.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>This package is available in GitHub (<a href="https://github.com/rominsal/pspatreg" class="uri">https://github.com/rominsal/pspatreg</a>) and can be
+installed in the usual way.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="basic-information-on-the-package" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Basic information on the package</h1>
-<p>The package is accompanied by other two vignettes <strong>B_Examples_pspatreg_CS_data.html</strong> and <strong>C_Examples_pspatreg_Panel_data.html</strong>, introducing the application of <code>pspatreg</code> to cross-sectional and panel data. Here, we introduce some basic general information about the package.</p>
+<h1><span class="header-section-number">2</span> Basic information on
+the package</h1>
+<p>The package is accompanied by other two vignettes
+<strong>B_Examples_pspatreg_CS_data.html</strong> and
+<strong>C_Examples_pspatreg_Panel_data.html</strong>, introducing the
+application of <code>pspatreg</code> to cross-sectional and panel data.
+Here, we introduce some basic general information about the package.</p>
 <div id="the-function-pspatfit" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> The function <code>pspatfit()</code></h2>
-<p>The main function in the <code>pspatreg</code> package is <code>pspatfit()</code>, which estimates spatio-temporal pernalized spline spatial regression models using either the Restricted Maximum Likelihood (REML) method or the Maximum Likelihood (ML) method. In its generic form <code>pspatfit()</code> appears as:</p>
-<p><code>pspatfit(formula, data, na.action, listw = NULL,type = &quot;sim&quot;, method = &quot;eigen&quot;, Durbin = NULL, zero.policy = NULL,</code> <code>interval = NULL,trs = NULL, cor = &quot;none&quot;, dynamic = FALSE, control = list())</code></p>
-<p>The function <code>pspatfit()</code> returns a list of quantities of class <code>pspat</code>, including coefficients of the parametric terms and their standard errors, estimated coefficients corresponding to random effects in mixed model and their standard errors, equivalent degrees of freedom, residuals, fitted values, etc. A wide range of standard methods is also available for the <code>pspat</code> objects, including <code>print()</code>, <code>summary()</code>, <code>coef()</code>, <code>vcov()</code>, <code>anova()</code>, <code>fitted()</code>, <code>residuals()</code>, and <code>plot()</code>.</p>
+<h2><span class="header-section-number">2.1</span> The function
+<code>pspatfit()</code></h2>
+<p>The main function in the <code>pspatreg</code> package is
+<code>pspatfit()</code>, which estimates spatio-temporal pernalized
+spline spatial regression models using either the Restricted Maximum
+Likelihood (REML) method or the Maximum Likelihood (ML) method. In its
+generic form <code>pspatfit()</code> appears as:</p>
+<p><code>pspatfit(formula, data, na.action, listw = NULL,type = &quot;sim&quot;, method = &quot;eigen&quot;, Durbin = NULL, zero.policy = NULL,</code>
+<code>interval = NULL,trs = NULL, cor = &quot;none&quot;, dynamic = FALSE, control = list())</code></p>
+<p>The function <code>pspatfit()</code> returns a list of quantities of
+class <code>pspat</code>, including coefficients of the parametric terms
+and their standard errors, estimated coefficients corresponding to
+random effects in mixed model and their standard errors, equivalent
+degrees of freedom, residuals, fitted values, etc. A wide range of
+standard methods is also available for the <code>pspat</code> objects,
+including <code>print()</code>, <code>summary()</code>,
+<code>coef()</code>, <code>vcov()</code>, <code>anova()</code>,
+<code>fitted()</code>, <code>residuals()</code>, and
+<code>plot()</code>.</p>
 <div id="the-argument-formula" class="section level3" number="2.1.1">
-<h3><span class="header-section-number">2.1.1</span> The argument <code>formula</code></h3>
-<p>The argument <code>formula</code> within the function <code>pspatfit()</code> is formula similar to GAM specification including parametric and non-parametric terms. Parametric covariates are included in the usual way and non-parametric p-spline smooth terms are specified using <code>pspl(.)</code> and <code>pspat(.)</code> for the non-parametric covariates and spatial or spatio-temporal trends, respectively. For example</p>
+<h3><span class="header-section-number">2.1.1</span> The argument
+<code>formula</code></h3>
+<p>The argument <code>formula</code> within the function
+<code>pspatfit()</code> is formula similar to GAM specification
+including parametric and non-parametric terms. Parametric covariates are
+included in the usual way and non-parametric p-spline smooth terms are
+specified using <code>pspl(.)</code> and <code>pspat(.)</code> for the
+non-parametric covariates and spatial or spatio-temporal trends,
+respectively. For example</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> <span class="fu">pspl</span>(x3, <span class="at">nknots =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">pspl</span>(x4, <span class="at">nknots =</span> <span class="dv">20</span>) <span class="sc">+</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">pspt</span>(long, lat, year, <span class="at">nknots =</span> <span class="fu">c</span>(<span class="dv">18</span>,<span class="dv">18</span>,<span class="dv">8</span>),</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">psanova =</span> <span class="cn">TRUE</span>, </span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_sp1 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), </span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_sp2 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_time =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div>
-<p>In the example above, the model includes two parametric terms, two nonparametric terms, and a spatio-temporal trend (with long and lat as spatial coordinates, and year as temporal coordinate). The dimension of the basis function both in <code>pspl(.)</code> and <code>pspt(.)</code> is defined by <code>nknots</code>. This term should not be less than the dimension of the null space of the penalty for the term (see <code>null.space.dimension</code> and <code>choose.k</code> from package <code>mgcv</code> to know how to choose <code>nknots</code>). The default number of <code>nknots</code> in <code>pspl(.)</code> is 10, but in this example we have chosen 15 <code>nknots</code> for <code>g_1(x_3)</code> and 20 <code>nknots</code> for <code>g_2(x_4)</code>. The default number of <code>nknots</code> in <code>pspt(.)</code> is <code>c(10,10,5)</code>, but we have chosen <code>c(18,18,8)</code>.</p>
-<p>In this example we also adopt an ANOVA decomposition of the spatio-temporal trend (choosing <code>psanova = TRUE</code>). Each effect has its own degree of smoothing allowing a greater flexibility for the spatio-temporal trend. Calculating up to third-order interactions can be computationally expensive. To address this problem, we can select subgroups of interaction effects for the second- and third-order effects. To define these subgroups, we use three parameters available in <code>pspt()</code>: <code>nest_sp1</code>, <code>nest_sp2</code>, and <code>nest_time</code>. These parameters indicate the divisors of the <code>nknots</code> parameters. For example, if we set <code>nest_sp1 = c(1,2,3)</code>, we will have all knots for the <code>s_1</code> effect, 18/2 for each second-order effects with <code>s_1</code>, and 18/3 nots for the third order effect with <code>s_1</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
-<p>If we want to set any main effect to <code>0</code>, we must set the parameters <code>f1_main</code>, <code>f2_main</code> or <code>ft_main</code> to <code>FALSE</code>, The default is <code>TRUE</code>. We can also exclude second- or third-order effects setting <code>f12_int</code>, <code>f1t_int</code>, <code>f2t_int</code>, <code>f12t_int</code> to <code>FALSE</code>.</p>
+<p>In the example above, the model includes two parametric terms, two
+nonparametric terms, and a spatio-temporal trend (with long and lat as
+spatial coordinates, and year as temporal coordinate). The dimension of
+the basis function both in <code>pspl(.)</code> and <code>pspt(.)</code>
+is defined by <code>nknots</code>. This term should not be less than the
+dimension of the null space of the penalty for the term (see
+<code>null.space.dimension</code> and <code>choose.k</code> from package
+<code>mgcv</code> to know how to choose <code>nknots</code>). The
+default number of <code>nknots</code> in <code>pspl(.)</code> is 10, but
+in this example we have chosen 15 <code>nknots</code> for
+<code>g_1(x_3)</code> and 20 <code>nknots</code> for
+<code>g_2(x_4)</code>. The default number of <code>nknots</code> in
+<code>pspt(.)</code> is <code>c(10,10,5)</code>, but we have chosen
+<code>c(18,18,8)</code>.</p>
+<p>In this example we also adopt an ANOVA decomposition of the
+spatio-temporal trend (choosing <code>psanova = TRUE</code>). Each
+effect has its own degree of smoothing allowing a greater flexibility
+for the spatio-temporal trend. Calculating up to third-order
+interactions can be computationally expensive. To address this problem,
+we can select subgroups of interaction effects for the second- and
+third-order effects. To define these subgroups, we use three parameters
+available in <code>pspt()</code>: <code>nest_sp1</code>,
+<code>nest_sp2</code>, and <code>nest_time</code>. These parameters
+indicate the divisors of the <code>nknots</code> parameters. For
+example, if we set <code>nest_sp1 = c(1,2,3)</code>, we will have all
+knots for the <code>s_1</code> effect, 18/2 for each second-order
+effects with <code>s_1</code>, and 18/3 nots for the third order effect
+with <code>s_1</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>If we want to set any main effect to <code>0</code>, we must set the
+parameters <code>f1_main</code>, <code>f2_main</code> or
+<code>ft_main</code> to <code>FALSE</code>, The default is
+<code>TRUE</code>. We can also exclude second- or third-order effects
+setting <code>f12_int</code>, <code>f1t_int</code>,
+<code>f2t_int</code>, <code>f12t_int</code> to <code>FALSE</code>.</p>
 </div>
 <div id="the-argument-type" class="section level3" number="2.1.2">
-<h3><span class="header-section-number">2.1.2</span> The argument <code>Type</code></h3>
-<p>Using the argument <code>Type</code> we can choose different spatial model specifications: <code>&quot;sar&quot;</code>, <code>&quot;sem&quot;</code>, <code>&quot;sdm&quot;</code>, <code>&quot;sdem&quot;</code>, <code>&quot;sarar&quot;</code>, or <code>&quot;slx&quot;</code>. When creating a <code>&quot;slx&quot;</code>, <code>&quot;sdem&quot;</code> or <code>&quot;sdm&quot;</code> model, we need to include the formula of the durbin part in the Durbin parameter.</p>
+<h3><span class="header-section-number">2.1.2</span> The argument
+<code>Type</code></h3>
+<p>Using the argument <code>Type</code> we can choose different spatial
+model specifications: <code>&quot;sar&quot;</code>, <code>&quot;sem&quot;</code>,
+<code>&quot;sdm&quot;</code>, <code>&quot;sdem&quot;</code>, <code>&quot;sarar&quot;</code>, or
+<code>&quot;slx&quot;</code>. When creating a <code>&quot;slx&quot;</code>,
+<code>&quot;sdem&quot;</code> or <code>&quot;sdm&quot;</code> model, we need to include the
+formula of the durbin part in the Durbin parameter.</p>
 </div>
 <div id="data-structure" class="section level3" number="2.1.3">
 <h3><span class="header-section-number">2.1.3</span> Data structure</h3>
-<p>The argument <code>data</code> must contain all the variables included in parametric and non-parametric terms of the model. If a <code>pspat(.)</code> term is included in <code>formula</code>, the data must contain the spatial and temporal coordinates specified in <code>pspat(.)</code>. In this case, the coordinates must be ordered choosing time as fast index and spatial coordinates as slow indexes.</p>
-<p>Both <code>data.frame</code> and <code>sf</code> class objects can be used as <code>data</code> inputs.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> <code>sf</code> objects are recommended since they allow the user to map spatial trends. In our demos we use two datasets in <code>sf</code> version.</p>
+<p>The argument <code>data</code> must contain all the variables
+included in parametric and non-parametric terms of the model. If a
+<code>pspat(.)</code> term is included in <code>formula</code>, the data
+must contain the spatial and temporal coordinates specified in
+<code>pspat(.)</code>. In this case, the coordinates must be ordered
+choosing time as fast index and spatial coordinates as slow indexes.</p>
+<p>Both <code>data.frame</code> and <code>sf</code> class objects can be
+used as <code>data</code> inputs.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> <code>sf</code> objects are recommended
+since they allow the user to map spatial trends. In our demos we use two
+datasets in <code>sf</code> version.</p>
 </div>
 </div>
 <div id="plotting-smooth-terms" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Plotting smooth terms</h2>
-<p>Plotting the estimated non-parametric smooth terms represents an important step in semiparametric regression analyses. First, the function <code>fit_terms()</code> computes estimated non-parametric smooth terms. Then, the functions <code>plot_sp2d()</code> and <code>plot_sp3d()</code> are used to plot and map spatial and spatio-temporal trends, respectively, while <code>plot_sptime()</code> is used to plot the time trend for PS-ANOVA models in 3d; finally, and <code>plot_terms()</code> is used to plot smooth non-parametric terms.</p>
+<h2><span class="header-section-number">2.2</span> Plotting smooth
+terms</h2>
+<p>Plotting the estimated non-parametric smooth terms represents an
+important step in semiparametric regression analyses. First, the
+function <code>fit_terms()</code> computes estimated non-parametric
+smooth terms. Then, the functions <code>plot_sp2d()</code> and
+<code>plot_sp3d()</code> are used to plot and map spatial and
+spatio-temporal trends, respectively, while <code>plot_sptime()</code>
+is used to plot the time trend for PS-ANOVA models in 3d; finally, and
+<code>plot_terms()</code> is used to plot smooth non-parametric
+terms.</p>
 </div>
 <div id="computing-marginal-impacts" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> Computing marginal impacts</h2>
-<p>In the case of a semiparametric model without the spatial lag of the dependent variable (PS model), if all regressors are manipulated independently of the errors, <span class="math inline">\(\widehat{g}_\delta(x_{\delta, it})\)</span> can be interpreted as the conditional expectation of <span class="math inline">\(y\)</span> given <span class="math inline">\(x_{\delta}\)</span> (net of the effect of the other regressors). @blu.pow.03 use the term Average Structural Function (ASF) with reference to these functions. Instead, in PS-SAR, PS-SDM or in PS-SARAR model, when <span class="math inline">\(\rho\)</span> is different from zero, the estimated smooth functions cannot be interpreted as ASF. Taking advantage of the results obtained for parametric SAR, we can compute the total smooth effect (total–ASF) of <span class="math inline">\(x_{\delta}\)</span> as:<br />
+<h2><span class="header-section-number">2.3</span> Computing marginal
+impacts</h2>
+<p>In the case of a semiparametric model without the spatial lag of the
+dependent variable (PS model), if all regressors are manipulated
+independently of the errors, <span class="math inline">\(\widehat{g}_\delta(x_{\delta, it})\)</span> can be
+interpreted as the conditional expectation of <span class="math inline">\(y\)</span> given <span class="math inline">\(x_{\delta}\)</span> (net of the effect of the
+other regressors). @blu.pow.03 use the term Average Structural Function
+(ASF) with reference to these functions. Instead, in PS-SAR, PS-SDM or
+in PS-SARAR model, when <span class="math inline">\(\rho\)</span> is
+different from zero, the estimated smooth functions cannot be
+interpreted as ASF. Taking advantage of the results obtained for
+parametric SAR, we can compute the total smooth effect (total–ASF) of
+<span class="math inline">\(x_{\delta}\)</span> as:<br />
 <span class="math display">\[\widehat{g}_{\delta}^{T}\left(x_{\delta}\right)=\Sigma_{q}
-\left[\textbf{I}_{n}-\widehat{\rho}\textbf{W}_{n}\right]^{-1}_{ij} b_{\delta q}(x_{\delta})\widehat{\beta}_{\delta q}\]</span></p>
-<p>where <span class="math inline">\(b_{\delta q}(x_{\delta})\)</span> are P-spline basis functions, and <span class="math inline">\(\widehat{\beta}_{\delta q}\)</span> the corresponding estimated parameters.</p>
-<p>We can also compute direct and indirect (or spillover) impacts of smooth terms in the PS-SAR case as:</p>
+\left[\textbf{I}_{n}-\widehat{\rho}\textbf{W}_{n}\right]^{-1}_{ij}
+b_{\delta q}(x_{\delta})\widehat{\beta}_{\delta q}\]</span></p>
+<p>where <span class="math inline">\(b_{\delta q}(x_{\delta})\)</span>
+are P-spline basis functions, and <span class="math inline">\(\widehat{\beta}_{\delta q}\)</span> the
+corresponding estimated parameters.</p>
+<p>We can also compute direct and indirect (or spillover) impacts of
+smooth terms in the PS-SAR case as:</p>
 <p><span class="math display">\[\widehat{g}_{\delta}^{D}\left(x_{\delta}\right)=\Sigma_{q}
-\left[\textbf{I}_{n}-\widehat{\rho}\textbf{W}_{n}\right]^{-1}_{ii} b_{\delta q}(x_{k})\widehat{\beta}_{\delta q}\]</span></p>
+\left[\textbf{I}_{n}-\widehat{\rho}\textbf{W}_{n}\right]^{-1}_{ii}
+b_{\delta q}(x_{k})\widehat{\beta}_{\delta q}\]</span></p>
 <p><span class="math display">\[\widehat{g}_{\delta}^{I}\left(x_{\delta}\right)=\widehat{g}_{\delta}^{T}\left(x_{\delta}\right)-\widehat{g}_{\delta}^{D}\left(x_{\delta}\right)\]</span></p>
-<p>Similar expressions can be provided for the direct, indirect and total impacts of the PS-SDM.</p>
-<p>The function <code>impactspar()</code> computes direct, indirect and total impacts for continuous parametric covariates using the standard procedure for their computation <span class="citation">(LeSage and Pace 2009)</span>.</p>
-<p>The function <code>impactsnopar()</code> computes direct, indirect and total impacts functions for continuous non-parametric covariates, while the function <code>plot_impactsnopar()</code> is used to plot these impacts functions. It is worth noticing that total, direct and indirect impacts are never smooth over the domain of the variable <span class="math inline">\(x_\delta\)</span> due to the presence of the spatial multiplier matrix in the algorithm for their computation. Indeed, a wiggly profile of direct, indirect and total impacts would appear even if the model were linear. Therefore, in the spirit of the semiparametric approach, we included the possibility of applying a spline smoother to obtain smooth curves (using the argument <code>smooth=TRUE</code> in the function <code>plot_impactsnopar()</code>).</p>
+<p>Similar expressions can be provided for the direct, indirect and
+total impacts of the PS-SDM.</p>
+<p>The function <code>impactspar()</code> computes direct, indirect and
+total impacts for continuous parametric covariates using the standard
+procedure for their computation <span class="citation">(LeSage and Pace
+2009)</span>.</p>
+<p>The function <code>impactsnopar()</code> computes direct, indirect
+and total impacts functions for continuous non-parametric covariates,
+while the function <code>plot_impactsnopar()</code> is used to plot
+these impacts functions. It is worth noticing that total, direct and
+indirect impacts are never smooth over the domain of the variable <span class="math inline">\(x_\delta\)</span> due to the presence of the
+spatial multiplier matrix in the algorithm for their computation.
+Indeed, a wiggly profile of direct, indirect and total impacts would
+appear even if the model were linear. Therefore, in the spirit of the
+semiparametric approach, we included the possibility of applying a
+spline smoother to obtain smooth curves (using the argument
+<code>smooth=TRUE</code> in the function
+<code>plot_impactsnopar()</code>).</p>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-bai2015dynamic" class="csl-entry">
-Bai, J., and K. Li. 2013. <span>“Spatial Panel Data Models with Common Shocks.”</span> MPRA Paper 52786. University of Munich, Germany. <a href="https://ideas.repec.org/p/pra/mprapa/52786.html">https://ideas.repec.org/p/pra/mprapa/52786.html</a>.
+Bai, J., and K. Li. 2013. <span>“Spatial Panel Data Models with Common
+Shocks.”</span> MPRA Paper 52786. University of Munich, Germany. <a href="https://ideas.repec.org/p/pra/mprapa/52786.html">https://ideas.repec.org/p/pra/mprapa/52786.html</a>.
 </div>
 <div id="ref-bailey2015two" class="csl-entry">
-Bailey, Natalia, Sean Holly, and M. Hashem Pesaran. 2016. <span>“A Two-Stage Approach to Spatio-Temporal Analysis with Strong and Weak Cross-Sectional Dependence.”</span> <em>Journal of Applied Econometrics</em> 31 (1): 249–80.
+Bailey, Natalia, Sean Holly, and M. Hashem Pesaran. 2016. <span>“A
+Two-Stage Approach to Spatio-Temporal Analysis with Strong and Weak
+Cross-Sectional Dependence.”</span> <em>Journal of Applied
+Econometrics</em> 31 (1): 249–80.
 </div>
 <div id="ref-basdurminmonmur14" class="csl-entry">
-Basile, Roberto, María Durbán, Román Mínguez, Jose María Montero, and Jesús Mur. 2014. <span>“Modeling Regional Economic Dynamics: Spatial Dependence, Spatial Heterogeneity and Nonlinearities.”</span> <em>Journal of Economic Dynamics and Control</em> 48: 229–45. https://doi.org/<a href="http://dx.doi.org/10.1016/j.jedc.2014.06.011">http://dx.doi.org/10.1016/j.jedc.2014.06.011</a>.
+Basile, Roberto, María Durbán, Román Mínguez, Jose María Montero, and
+Jesús Mur. 2014. <span>“Modeling Regional Economic Dynamics: Spatial
+Dependence, Spatial Heterogeneity and Nonlinearities.”</span>
+<em>Journal of Economic Dynamics and Control</em> 48: 229–45. <a href="https://doi.org/10.1016/j.jedc.2014.06.011">https://doi.org/10.1016/j.jedc.2014.06.011</a>.
 </div>
 <div id="ref-boor77" class="csl-entry">
-De Boor, C. 1977. <span>“Package for Calculating with <span>B</span>-Splines.”</span> <em>Journal of Numerical Analysis</em> 14: 441–72.
+De Boor, C. 1977. <span>“Package for Calculating with
+<span>B</span>-Splines.”</span> <em>Journal of Numerical Analysis</em>
+14: 441–72.
 </div>
 <div id="ref-eil.mar.96" class="csl-entry">
-Eilers, P. H., and B. D. Marx. 1996. <span>“Flexible <span>S</span>moothing with <span>B-S</span>plines and <span>P</span>enalties.”</span> <em>Statistical Science</em> 11: 89–121.
+Eilers, P. H., and B. D. Marx. 1996. <span>“Flexible
+<span>S</span>moothing with <span>B-S</span>plines and
+<span>P</span>enalties.”</span> <em>Statistical Science</em> 11: 89–121.
 </div>
 <div id="ref-eilers2015twenty" class="csl-entry">
-Eilers, Paul HC, Brian D Marx, and Maria Durbán. 2015. <span>“Twenty Years of p-Splines.”</span> <em>SORT-Statistics and Operations Research Transactions</em> 39 (2): 149–86.
+Eilers, Paul HC, Brian D Marx, and Maria Durbán. 2015. <span>“Twenty
+Years of p-Splines.”</span> <em>SORT-Statistics and Operations Research
+Transactions</em> 39 (2): 149–86.
 </div>
 <div id="ref-Hoshino2018" class="csl-entry">
-Hoshino, T. 2018. <span>“Semiparametric Spatial Autoregressive Models with Endogenous Regressors: With an Application to Crime Data.”</span> <em>Journal of Business &amp; Economic Statistics</em> 36: 160–72.
+Hoshino, T. 2018. <span>“Semiparametric Spatial Autoregressive Models
+with Endogenous Regressors: With an Application to Crime Data.”</span>
+<em>Journal of Business &amp; Economic Statistics</em> 36: 160–72.
 </div>
 <div id="ref-Lee2013" class="csl-entry">
-Lee, D. J., M. Durban, and P. Eilers. 2013. <span>“Efficient Two-Dimensional Smoothing with <span>P</span>-Spline <span>ANOVA</span> Mixed Models and Nested Bases.”</span> <em>Computational Statistics &amp; Data Analysis</em> 61: 22–37.
+Lee, D. J., M. Durban, and P. Eilers. 2013. <span>“Efficient
+Two-Dimensional Smoothing with <span>P</span>-Spline <span>ANOVA</span>
+Mixed Models and Nested Bases.”</span> <em>Computational Statistics
+&amp; Data Analysis</em> 61: 22–37.
 </div>
 <div id="ref-les.pac.09" class="csl-entry">
-LeSage, J., and K. Pace. 2009. <em>Introduction to <span>S</span>patial <span>E</span>conometrics</em>. Boca Raton: CRC Press.
+LeSage, J., and K. Pace. 2009. <em>Introduction to <span>S</span>patial
+<span>E</span>conometrics</em>. Boca Raton: CRC Press.
 </div>
 <div id="ref-minguez2020alternative" class="csl-entry">
-Mı́nguez, Román, Roberto Basile, and Marı́a Durbán. 2020. <span>“An Alternative Semiparametric Model for Spatial Panel Data.”</span> <em>Statistical Methods &amp; Applications</em> 29 (4): 669–708.
+Mı́nguez, Román, Roberto Basile, and Marı́a Durbán. 2020. <span>“An
+Alternative Semiparametric Model for Spatial Panel Data.”</span>
+<em>Statistical Methods &amp; Applications</em> 29 (4): 669–708. <a href="https://doi.org/10.1007/s10260-019-00492-8">https://doi.org/10.1007/s10260-019-00492-8</a>.
 </div>
 <div id="ref-montero2012sar" class="csl-entry">
-Montero, J, R Mı́nguez, and M Durbán. 2012. <span>“<span>SAR</span> Models with Nonparametric Spatial Trends. <span>A</span> <span>P</span>-Spline Approach.”</span> <em>Estad<span>ı́</span>stica Espa<span>ñ</span>ola</em> 54 (177): 89–111.
+Montero, J, R Mı́nguez, and M Durbán. 2012. <span>“<span>SAR</span>
+Models with Nonparametric Spatial Trends. <span>A</span>
+<span>P</span>-Spline Approach.”</span> <em>Estad<span>ı́</span>stica
+Espa<span>ñ</span>ola</em> 54 (177): 89–111.
 </div>
 <div id="ref-pesaran2011large" class="csl-entry">
-Pesaran, M Hashem, and Elisa Tosetti. 2011. <span>“Large Panels with Common Factors and Spatial Correlation.”</span> <em>Journal of Econometrics</em> 161 (2): 182–202.
+Pesaran, M Hashem, and Elisa Tosetti. 2011. <span>“Large Panels with
+Common Factors and Spatial Correlation.”</span> <em>Journal of
+Econometrics</em> 161 (2): 182–202.
 </div>
 <div id="ref-Rodriguez2015" class="csl-entry">
-Rodriguez-Alvarez, M. X., T. Kneib, M. Durban, D. J. Lee, and P. Eilers. 2015. <span>“Fast Smoothing Parameter Separation in Multidimensional Generalized <span>P</span>-Splines: The <span>SAP</span> Algorithm.”</span> <em>Statistics and Computing</em> 25 (5): 941–57.
+Rodriguez-Alvarez, M. X., T. Kneib, M. Durban, D. J. Lee, and P. Eilers.
+2015. <span>“Fast Smoothing Parameter Separation in Multidimensional
+Generalized <span>P</span>-Splines: The <span>SAP</span>
+Algorithm.”</span> <em>Statistics and Computing</em> 25 (5): 941–57.
 </div>
 <div id="ref-shi2018spatial" class="csl-entry">
-Shi, Wei, and Lung-fei Lee. 2018. <span>“A Spatial Panel Data Model with Time Varying Endogenous Weights Matrices and Common Factors.”</span> <em>Regional Science and Urban Economics</em> 72: 6–34.
+Shi, Wei, and Lung-fei Lee. 2018. <span>“A Spatial Panel Data Model with
+Time Varying Endogenous Weights Matrices and Common Factors.”</span>
+<em>Regional Science and Urban Economics</em> 72: 6–34.
 </div>
 <div id="ref-vega2016regional" class="csl-entry">
-Vega, Solmaria Halleck, and J Paul Elhorst. 2016. <span>“A Regional Unemployment Model Simultaneously Accounting for Serial Dynamics, Spatial Dependence and Common Factors.”</span> <em>Regional Science and Urban Economics</em> 60: 85–95.
+Vega, Solmaria Halleck, and J Paul Elhorst. 2016. <span>“A Regional
+Unemployment Model Simultaneously Accounting for Serial Dynamics,
+Spatial Dependence and Common Factors.”</span> <em>Regional Science and
+Urban Economics</em> 60: 85–95.
 </div>
 </div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>To install any R package from GitHub you need to have previously installed <code>devtools</code> package from CRAN. Then execute the commands <code>library(devtools)</code>, to load <code>devtools</code>, and install <code>github(&quot;rominsal/pspatreg&quot;)</code> to install <code>pspatreg</code> package: <code>devtools::install_github(&quot;rominsal/pspatreg&quot;)</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>In most empirical cases, the main effects are more flexible than interaction effects and therefore the number of knots in B-Spline bases for interaction effects do not need to be as large as the number of knots for the main effects <span class="citation">(Lee, Durban, and Eilers 2013)</span>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p><code>sf</code> means simple features of spatial vector objects. The geographic vector data model is based on points located within a coordinate reference system (CRS). Points can represent self-standing features (e.g., the location of a house) or they can be linked together to form more complex geometries such as lines and polygons. Most point geometries contain only two dimensions <code>x</code> and <code>y</code> (3-dimensional CRSs contain an additional <code>z</code> value, typically representing height above sea level). <code>sf</code> objects provide both a <em>geometry</em> information, describing where on Earth the feature is located, and <em>attributes</em> information, describing other properties (like the population of the region, the unemployment rate, etc.). <code>data.frame</code> objects store only attributes information.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>To install any R package from GitHub you need to have
+previously installed <code>devtools</code> package from CRAN. Then
+execute the commands <code>library(devtools)</code>, to load
+<code>devtools</code>, and install
+<code>github(&quot;rominsal/pspatreg&quot;)</code> to install
+<code>pspatreg</code> package:
+<code>devtools::install_github(&quot;rominsal/pspatreg&quot;)</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>In most empirical cases, the main effects are more
+flexible than interaction effects and therefore the number of knots in
+B-Spline bases for interaction effects do not need to be as large as the
+number of knots for the main effects <span class="citation">(Lee,
+Durban, and Eilers 2013)</span>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><code>sf</code> means simple features of spatial vector
+objects. The geographic vector data model is based on points located
+within a coordinate reference system (CRS). Points can represent
+self-standing features (e.g., the location of a house) or they can be
+linked together to form more complex geometries such as lines and
+polygons. Most point geometries contain only two dimensions
+<code>x</code> and <code>y</code> (3-dimensional CRSs contain an
+additional <code>z</code> value, typically representing height above sea
+level). <code>sf</code> objects provide both a <em>geometry</em>
+information, describing where on Earth the feature is located, and
+<em>attributes</em> information, describing other properties (like the
+population of the region, the unemployment rate, etc.).
+<code>data.frame</code> objects store only attributes information.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
