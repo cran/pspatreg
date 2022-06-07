@@ -130,7 +130,7 @@
 #'   \item \code{\link{residuals}} extractor function of the residuals.
 #'   \item \code{\link{vcov}} extractor function of the covariance matrix
 #'   of the estimated parameters. The argument \code{bayesian} 
-#'   (default = `FALSE`) allows to choose between sandwhich 
+#'   (default = `TRUE`) allows to choose between sandwich 
 #'   (frequentist) or bayesian method to compute the variances and 
 #'   covariances. See Fahrmeir et al. (2021) for details.
 #'   }
@@ -226,7 +226,7 @@
 #' @importFrom ggplot2 geom_histogram
 #' @importFrom graphics image contour matplot title points
 #' @importFrom graphics par abline lines
-#' @importFrom grDevices heat.colors
+#' @importFrom grDevices heat.colors hcl.colors
 #' @importFrom MBA mba.surf
 #' @importFrom MASS ginv mvrnorm
 #' @importFrom Matrix bandSparse bdiag crossprod determinant
@@ -235,7 +235,7 @@
 #' @importFrom methods as
 #' @importFrom minqa bobyqa
 #' @importFrom numDeriv hessian
-#' @importFrom plm plm pdata.frame Within
+#' @importFrom plm plm pdata.frame Between Within index
 #' @importFrom Rdpack reprompt
 #' @importFrom sf st_as_sf st_drop_geometry st_coordinates
 #' @importFrom sf st_geometry_type
@@ -249,8 +249,8 @@
 #' @importFrom stats model.response as.formula .getXlevels
 #' @importFrom stats pchisq pnorm pt rnorm qnorm
 #' @importFrom stats coefficients fitted residuals printCoefmat
-#' @importFrom stats model.frame model.matrix terms
+#' @importFrom stats model.frame model.matrix terms lag
 #' @importFrom stats anova coef formula logLik AIC BIC
 #' @importFrom stats na.action napredict update
-#' @importFrom stringr str_detect str_replace str_split
+#' @importFrom stringr str_detect str_replace str_split str_extract str_length
 NULL

@@ -38,7 +38,7 @@ build_G2d <- function(la, lg, env) {
                             length(g21u) + length(g12b)) }
       Ginv <- c(Ginv_f1, Ginv_f2, Ginv_f12)
     }
-  } else { Ginv <- Ginv_eff <- NULL } 
+  } else { Ginv <- Ginv_eff <- NULL }
   if (env$nvarnopar>0) {
     for (k in 1:env$nvarnopar) {
       name_taunopark <- paste("taunopar", k, sep = "")
@@ -48,7 +48,7 @@ build_G2d <- function(la, lg, env) {
                               env$dnoparlist[[k]])
     } 
   }
-  G <- ifelse(Ginv!=0, 1/Ginv, 0) # Keep zeros in same positions
+  G <- ifelse(Ginv != 0, 1/Ginv, 0) # Keep zeros in same positions
   G_eff <- 1/Ginv_eff
   res <- list(G = G, Ginv = Ginv, G_eff = G_eff, 
               Ginv_eff = Ginv_eff) }

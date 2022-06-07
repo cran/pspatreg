@@ -10,8 +10,10 @@
 #'
 #' @param fitterms object returned from \code{\link{fit_terms}} function.
 #' @param data dataframe or sf with the data. 
-#' @param conflevel numerical value for the confidence interval of the
-#'   term. Default 0.95.
+#' @param type type of term plotted between "global" (Default), 
+#'   "fixed" or "random".
+#' @param alpha numerical value for the significance level of the pointwise 
+#'   confidence intervals of the nonlinear terms. Default 0.05.
 #' @param listw used to compute spatial lags for Durbin specifications. 
 #'   Default =  `NULL`
 #' @param dynamic Logical value to set a dynamic model.
@@ -20,6 +22,8 @@
 #'   Default = `FALSE`.
 #' @param nt  Number of temporal periods. It is needed
 #'   for dynamic models.  
+#' @param decomposition Plot the decomposition of term in
+#'   random and fixed effects.   
 #'
 #' @return list with the plots of the terms for each non-parametric 
 #'   covariate included in the object returned from \code{\link{fit_terms}}.
@@ -48,31 +52,76 @@
 #'  }
 #'         
 #' @examples
-#'  ###################### unemployment for 103 Italian provinces in period 1996-2014.
+#' ################################################
+#' # Examples using spatial data of Ames Houses.
+#' ###############################################
+#' # Getting and preparing the data
+#' library(pspatreg)
+#' library(spdep)
+#' library(sf)
+#' ames <- AmesHousing::make_ames() # Raw Ames Housing Data
+#' ames_sf <- st_as_sf(ames, coords = c("Longitude", "Latitude"))
+#' ames_sf$Longitude <- ames$Longitude
+#' ames_sf$Latitude <- ames$Latitude
+#' ames_sf$lnSale_Price <- log(ames_sf$Sale_Price)
+#' ames_sf$lnLot_Area <- log(ames_sf$Lot_Area)
+#' ames_sf$lnTotal_Bsmt_SF <- log(ames_sf$Total_Bsmt_SF+1)
+#' ames_sf$lnGr_Liv_Area <- log(ames_sf$Gr_Liv_Area)
+#' ########### Constructing the spatial weights matrix
+#' ames_sf1 <- ames_sf[(duplicated(ames_sf$Longitude) == FALSE), ]
+#' coord_sf1 <- cbind(ames_sf1$Longitude, ames_sf1$Latitude)
+#' ID <- row.names(as(ames_sf1, "sf"))
+#' col_tri_nb <- tri2nb(coord_sf1)
+#' soi_nb <- graph2nb(soi.graph(col_tri_nb, 
+#'                             coord_sf1), 
+#'                    row.names = ID)
+#' lw_ames <- nb2listw(soi_nb, style = "W", 
+#'                     zero.policy = FALSE)
+#'                     
+#' form1 <- lnSale_Price ~ Fireplaces + Garage_Cars +
+#'           pspl(lnLot_Area, nknots = 20) + 
+#'           pspl(lnTotal_Bsmt_SF, nknots = 20) +
+#'           pspl(lnGr_Liv_Area, nknots = 20)    
+#' 
+#' gamsar <- pspatfit(form1, data = ames_sf1, 
+#'                    type = "sar", listw = lw_ames,
+#'                    method = "Chebyshev")
+#' summary(gamsar)
+#' list_varnopar <- c("lnLot_Area", "lnTotal_Bsmt_SF", 
+#' "lnGr_Liv_Area")
+#' terms_nopar <- fit_terms(gamsar, list_varnopar)
+#' ######################  Plot non-parametric terms
+#' plot_terms(terms_nopar, ames_sf1)
+#' \donttest{  
+#' ###### Examples using a panel data of rate of
+#' ###### unemployment for 103 Italian provinces in period 1996-2014.
 #' library(pspatreg)
 #' data(unemp_it, package = "pspatreg")
 #' lwsp_it <- spdep::mat2listw(Wsp_it)
-#' unemp_it_short <- unemp_it[unemp_it$year == 2019, ]
 #' 
-#' ########  No Spatial Trend: PSAR including a spatial 
+#' ########  No Spatial Trend: ps-sar including a spatial 
 #' ########  lag of the dependent variable
-#' form1 <- unrate ~ partrate + agri + cons +
-#'                   pspl(serv,nknots=15) +
-#'                   pspl(empgrowth,nknots=20) 
-#' gamsar <- pspatfit(form1, data = unemp_it_short, 
+#' form1 <- unrate ~ partrate + agri + cons + 
+#'                   pspl(serv,nknots = 15) +
+#'                   pspl(empgrowth,nknots = 20) 
+#' gamsar <- pspatfit(form1, data = unemp_it, 
 #'                    type = "sar", listw = Wsp_it)
 #' summary(gamsar)
 #' ########  Fit non-parametric terms (spatial trend must be name "spttrend")
 #' list_varnopar <- c("serv", "empgrowth")
 #' terms_nopar <- fit_terms(gamsar, list_varnopar)
 #' #######  Plot non-parametric terms
-#' plot_terms(terms_nopar, unemp_it_short)
-#'  
+#' plot_terms(terms_nopar, unemp_it)
+#' }  
 #' @export
-plot_terms <- function(fitterms, data, conflevel = 0.95, 
+plot_terms <- function(fitterms, 
+                       data, 
+                       type = "global",
+                       alpha = 0.05, 
                        listw = NULL,  
                        dynamic = FALSE, 
-                       nt = NULL) {
+                       nt = NULL,
+                       decomposition = FALSE) {
   if (inherits(data, "sf"))
     data <- st_drop_geometry(data)
   nfull <- nrow(data)
@@ -89,7 +138,7 @@ plot_terms <- function(fitterms, data, conflevel = 0.95,
   fit_random <- fitterms$fitted_terms_random
   se_fit_random <- fitterms$se_fitted_terms_random
   variables <- colnames(fit)
-  crval <- qnorm((1 - conflevel)/2, mean = 0, 
+  crval <- qnorm(alpha/2, mean = 0, 
                  sd = 1, lower.tail = FALSE)
   for (i in 1:length(variables)) {
     name_var <- variables[i]
@@ -119,8 +168,8 @@ plot_terms <- function(fitterms, data, conflevel = 0.95,
     colnames(low_fit_var_random) <- name_var
     # Check for Wlag.var
     if (grepl("Wlag", name_var)) {
-      idx_name_var <- str_detect(name_var, colnames(data))
-      var <- as.matrix(data[, idx_name_var])
+      new_name_var <- str_replace(name_var,"Wlag.","")
+      var <- as.matrix(data[, c(new_name_var)])
       Wsp <- listw2mat(listw)
       # spatio-temporal data 
       if (nrow(var) > nrow(Wsp)) {
@@ -138,27 +187,46 @@ plot_terms <- function(fitterms, data, conflevel = 0.95,
     ord <- order(var)
     oldpar <- par(no.readonly = TRUE)
     on.exit(par(oldpar))
-    par(mfrow = c(2, 1))
-    plot(var[ord], fit_var[ord], 
+    if (decomposition) par(mfrow = c(2, 1))
+    if (type == "global") {
+      termplot <- fit_var
+      low_termplot <- low_fit_var
+      up_termplot <- up_fit_var
+    } else if (type == "fixed") {
+      termplot <- fit_var_fixed
+      low_termplot <- low_fit_var_fixed
+      up_termplot <- up_fit_var_fixed
+    } else if (type == "random") {
+      termplot <- fit_var_random
+      low_termplot <- low_fit_var_random
+      up_termplot <- up_fit_var_random
+    } else stop("type must be: \"global\", \"fixed\" or \"random\" ")
+    # Set maximum and minimum
+    miny <- min(low_termplot)
+    maxy <- max(up_termplot)
+    plot(var[ord], termplot[ord], 
          type = "l",
          ylab = paste("f(", name_var, ")"), 
          xlab = name_var,
-         ylim = c(min(low_fit_var), max(up_fit_var)), 
+         ylim = c(miny, maxy), 
          cex.lab = 1.0, 
          col = 2, 
          lty = 1, 
          lwd = 2, 
          cex.main = 1.0,
-         main = paste("Term: ", paste("f(",name_var,")")),
+         main = paste("Term: ", paste("f(",name_var,")"), 
+                                      paste(" type = ", type)),
          sub = "Pointwise confidence intervals in dashed lines")
-    lines(var[ord], up_fit_var[ord], 
-          xlab = "", 
+    lines(var[ord], low_termplot[ord],
+          ylim = c(miny, maxy),          
+          xlab = "",
           ylab = "", 
           type = "l", 
           col = 2, 
           lty = 2, 
           lwd = 1.5)
-    lines(var[ord], low_fit_var[ord], 
+    lines(var[ord], up_termplot[ord], 
+          ylim = c(miny, maxy),
           xlab = "",  
           ylab = "", 
           type = "l", 
@@ -166,34 +234,46 @@ plot_terms <- function(fitterms, data, conflevel = 0.95,
           lty = 2, 
           lwd = 1.5)
     abline(a = 0, b = 0)
-    plot(var[ord], fit_var[ord], 
-         type = "l",
-         ylab = paste("f(",name_var,")"), 
-         xlab = name_var,
-         ylim = c(min(low_fit_var), max(up_fit_var)), 
-         cex.lab = 1.0, 
-         col = 2, 
-         lty = 1, 
-         lwd = 2,
-         cex.main = 1.0,
-         main = paste("Decomposition of ", 
-                      paste("f(",name_var,")")),
-         sub = paste("Global (red), Fixed (green) and Random (blue) Terms"))
-    lines(var[ord], fit_var_fixed[ord], 
-          xlab = "", 
-          ylab = "", 
-          type = "l", 
-          col = 3, 
-          lty = 2, 
-          lwd = 2)
-    lines(var[ord], fit_var_random[ord], 
-          xlab = "", 
-          ylab = "", 
-          type = "l", 
-          col = 4, 
-          lty = 3, 
-          lwd = 2)
-    abline(a = 0, b = 0)
+    if (decomposition) {
+      # Set maximum and minimum
+      miny <- min(c(fit_var, fit_var_fixed, fit_var_random))
+      maxy <- max(c(fit_var, fit_var_fixed, fit_var_random))
+      miny <- miny 
+      maxy <- maxy 
+      plot(var[ord], 
+           fit_var[ord], 
+           type = "l",
+           ylab = paste("f(",name_var,")"), 
+           xlab = name_var,
+           ylim = c(miny, maxy), 
+           cex.lab = 1.0, 
+           col = 2, 
+           lty = 1, 
+           lwd = 2,
+           cex.main = 1.0,
+           main = paste("Decomposition of ", 
+                        paste("f(",name_var,")")),
+           sub = paste("Global (red), Fixed (green) and Random (blue) Terms"))
+      lines(var[ord], 
+            fit_var_fixed[ord], 
+            ylim = c(miny, maxy), 
+            xlab = "", 
+            ylab = "", 
+            type = "l", 
+            col = 3, 
+            lty = 2, 
+            lwd = 2)
+      lines(var[ord], 
+            fit_var_random[ord], 
+            ylim = c(miny, maxy),
+            xlab = "", 
+            ylab = "", 
+            type = "l", 
+            col = 4, 
+            lty = 3, 
+            lwd = 2)
+      abline(a = 0, b = 0)
+    }
     readline(prompt = "Press [enter] to continue")
   }
 }
