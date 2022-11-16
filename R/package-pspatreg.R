@@ -243,7 +243,7 @@
 #' @importFrom spatialreg can.be.simmed jacobianSetup do_ldet
 #' @importFrom spatialreg intImpacts lmSLX invIrW trW
 #' @importFrom spdep listw2mat mat2listw nb2listw
-#' @importFrom spdep tri2nb graph2nb soi.graph is.symmetric.nb
+#' @importFrom spdep knearneigh knn2nb  
 #' @importFrom splines spline.des
 #' @importFrom stats var sd loess predict vcov
 #' @importFrom stats model.response as.formula .getXlevels

@@ -576,16 +576,7 @@
 #' ames_sf$lnLot_Area <- log(ames_sf$Lot_Area)
 #' ames_sf$lnTotal_Bsmt_SF <- log(ames_sf$Total_Bsmt_SF+1)
 #' ames_sf$lnGr_Liv_Area <- log(ames_sf$Gr_Liv_Area)
-#' ########### Constructing the spatial weights matrix
 #' ames_sf1 <- ames_sf[(duplicated(ames_sf$Longitude) == FALSE), ]
-#' coord_sf1 <- cbind(ames_sf1$Longitude, ames_sf1$Latitude)
-#' ID <- row.names(as(ames_sf1, "sf"))
-#' col_tri_nb <- tri2nb(coord_sf1)
-#' soi_nb <- graph2nb(soi.graph(col_tri_nb, 
-#'                             coord_sf1), 
-#'                    row.names = ID)
-#' lw_ames <- nb2listw(soi_nb, style = "W", 
-#'                     zero.policy = FALSE)
 #' 
 #' ####  GAM pure with pspatreg
 #' form1 <- lnSale_Price ~ Fireplaces + Garage_Cars +
@@ -602,12 +593,20 @@
 #' ######################  Plot non-parametric terms
 #' plot_terms(terms_nopar, ames_sf1)
 #' 
+#' \donttest{ 
+#' ########### Constructing the spatial weights matrix
+#' coord_sf1 <- cbind(ames_sf1$Longitude, ames_sf1$Latitude)
+#' k5nb <- knn2nb(knearneigh(coord_sf1, k = 5, 
+#'                           longlat = TRUE, use_kd_tree = FALSE), sym = TRUE)
+#' lw_ames <- nb2listw(k5nb, style = "W", 
+#'                   zero.policy = FALSE)
+#'                   
 #' #####################  GAM + SAR Model
 #' gamsar <- pspatfit(form1, data = ames_sf1, 
 #'                    type = "sar", listw = lw_ames,
 #'                    method = "Chebyshev")
 #' summary(gamsar)
-#' \donttest{ 
+#'                   
 #' ######### Non-Parametric Total, Direct and Indirect impacts
 #' ### with impactsnopar(viewplot = TRUE)
 #' nparimpacts <- impactsnopar(gamsar, 

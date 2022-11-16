@@ -67,22 +67,20 @@
 #' ames_sf$lnLot_Area <- log(ames_sf$Lot_Area)
 #' ames_sf$lnTotal_Bsmt_SF <- log(ames_sf$Total_Bsmt_SF+1)
 #' ames_sf$lnGr_Liv_Area <- log(ames_sf$Gr_Liv_Area)
-#' ########### Constructing the spatial weights matrix
 #' ames_sf1 <- ames_sf[(duplicated(ames_sf$Longitude) == FALSE), ]
-#' coord_sf1 <- cbind(ames_sf1$Longitude, ames_sf1$Latitude)
-#' ID <- row.names(as(ames_sf1, "sf"))
-#' col_tri_nb <- tri2nb(coord_sf1)
-#' soi_nb <- graph2nb(soi.graph(col_tri_nb, 
-#'                             coord_sf1), 
-#'                    row.names = ID)
-#' lw_ames <- nb2listw(soi_nb, style = "W", 
-#'                     zero.policy = FALSE)
 #'                     
 #' form1 <- lnSale_Price ~ Fireplaces + Garage_Cars +
 #'           pspl(lnLot_Area, nknots = 20) + 
 #'           pspl(lnTotal_Bsmt_SF, nknots = 20) +
 #'           pspl(lnGr_Liv_Area, nknots = 20)    
 #' 
+#' \donttest{ 
+#' ########### Constructing the spatial weights matrix
+#' coord_sf1 <- cbind(ames_sf1$Longitude, ames_sf1$Latitude)
+#' k5nb <- knn2nb(knearneigh(coord_sf1, k = 5, 
+#'                           longlat = TRUE, use_kd_tree = FALSE), sym = TRUE)
+#' lw_ames <- nb2listw(k5nb, style = "W", 
+#'                   zero.policy = FALSE)
 #' gamsar <- pspatfit(form1, data = ames_sf1, 
 #'                    type = "sar", listw = lw_ames,
 #'                    method = "Chebyshev")
@@ -92,7 +90,7 @@
 #' terms_nopar <- fit_terms(gamsar, list_varnopar)
 #' ######################  Plot non-parametric terms
 #' plot_terms(terms_nopar, ames_sf1)
-#' \donttest{  
+#' 
 #' ###### Examples using a panel data of rate of
 #' ###### unemployment for 103 Italian provinces in period 1996-2014.
 #' library(pspatreg)
