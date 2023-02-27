@@ -1,10 +1,9 @@
 citHeader("To cite pspatreg in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title = "An alternative semiparametric model for spatial panel data",
-  author = personList(as.person("Roman Minguez"),
-  as.person("Roberto Basile"), 
-  as.person("Maria Durban")),
+  author = c(person("Román", "Mínguez"), person("Roberto", "Basile"),
+    person("María", "Durbán")),
   journal = "Statistical Methods & Applications",
   volume = "29",
   number = "4",
@@ -22,13 +21,11 @@ citEntry(entry = "Article",
 "URL https://link.springer.com/article/10.1007/s10260-019-00492-8")
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title = "Modeling regional economic dynamics: spatial dependence, spatial heterogeneity and nonlinearities",
-  author = personList(as.person("Roberto Basile"),
-  as.person("Maria Durban"),
-  as.person("Roman Minguez"),
-  as.person("Jose Maria Montero"),
-  as.person("Jesus Mur")),
+  author = c( person("Roberto", "Basile"), person("María", "Durbán"), 
+  person("Román", "Mínguez"), person("José María", "Montero"), 
+  person("Jesús", "Mur")),
   journal = "Journal of Economic Dynamics and Control",
   year = "2014",
   volume = "48",

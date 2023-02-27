@@ -957,9 +957,12 @@ pspatfit <- function(formula, data, na.action,
   }
   assign("Wsp", Wsp, envir = env)
    mt <- terms(formula, specials = c("pspl", "pspt"))
-  names_var <- labels(mt)
   # Careful: The dataset could include factors...
   Xmodel <- model.matrix(mt, mf)
+  names_Xmodel <- colnames(Xmodel)
+  names_varpar_nointercept <- names_Xmodel[!grepl("Intercept", names_Xmodel) 
+                                           & !grepl("pspl", names_Xmodel) 
+                                           & !grepl("pspt", names_Xmodel)]
   if (attr(mt, "intercept") == 1) {
     Xpar <- Xmodel[, c("(Intercept)"), drop = FALSE]
     names_varpar <- c("(Intercept)")
@@ -967,12 +970,11 @@ pspatfit <- function(formula, data, na.action,
     Xpar <- NULL
     names_varpar <- NULL
   }
-  names_varspt <- names_var[grepl("pspt", names_var)]
+  names_mt <- labels(mt)
+  names_varspt <- names_mt[grepl("pspt", names_mt)]
   nvarspt <- length(names_varspt)
-  names_varnopar <- names_var[grepl("pspl", names_var)]
+  names_varnopar <- names_mt[grepl("pspl", names_mt)]
   nvarnopar <- length(names_varnopar)
-  names_varpar_nointercept <- names_var[!grepl("pspl", names_var) & 
-                              !grepl("pspt", names_var)]
   if (length(names_varpar_nointercept) > 0) {
     names_varpar <- c(names_varpar, names_varpar_nointercept)
     nvarpar <- length(names_varpar)

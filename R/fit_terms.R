@@ -85,7 +85,7 @@
 #'                   pspl(serv, nknots = 15) +
 #'                   pspl(empgrowth, nknots = 20)  
 #' gamsar <- pspatfit(form1, data = unemp_it, 
-#'                    type = "sar", listw = lwsp_it)
+#'                     type = "sar", listw = lwsp_it)
 #' summary(gamsar)
 #' 
 #' ######  Fit non-parametric terms 
