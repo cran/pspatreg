@@ -1,9 +1,9 @@
-6500219ef83d45aba2e11b88b83d1709 *DESCRIPTION
+24035972d44796004c4846fd9b303fde *DESCRIPTION
 027cba0b1a05116214b191d9db1afe71 *NAMESPACE
 a21b17599d987715edc2c84b37f1832d *R/aux_funct.R
 059a480e1323c969b84fc7be8e42604d *R/bspline.R
 87de060b9bce2a09a975e212094bcaa7 *R/build_G.R
-a93997323a80f120d7cc7cecd34eb7bd *R/build_Omega_ar1.R
+0df0c44ff16391c9ef870946a3522094 *R/build_Omega_ar1.R
 963918f8f4c33f1d66f18e7d31c90a88 *R/datasets.R
 19d7222735aca199581fe9e394b4c029 *R/fit_pspat.R
 c600a3827dd5bc7c6cc8bbde2305885a *R/fit_terms.R
@@ -43,7 +43,7 @@ cc777c91d498302cfaa2c5b7c1452613 *inst/CITATION
 cc915aaa5533939a7a0479536dd2b080 *inst/REFERENCES.bib
 894ca48d857bf5180f13050d090c309d *inst/doc/A_pspatregPackage.R
 30e8d4e160a44f8845ddda7da1df27c2 *inst/doc/A_pspatregPackage.Rmd
-150ca7a98fe2e2b1b4254e12557d4349 *inst/doc/A_pspatregPackage.html
+3a6338a9e2f6656f5a054ba01a2a8ff4 *inst/doc/A_pspatregPackage.html
 11cda85f77738374b97f5db9cf48999b *inst/doc/B_Examples_pspatreg_CS_data.Rmd
 dcc1f4502d10cb6fb8b117a0c90a6a08 *inst/doc/B_Examples_pspatreg_CS_data.html
 498a6854bc412d997be2ca57d0aa6718 *inst/doc/C_Examples_pspatreg_Panel_data.Rmd

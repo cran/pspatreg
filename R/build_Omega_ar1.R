@@ -27,15 +27,15 @@ build_Omega_ar1 <- function(phi, nt) {
                                          symmetric = TRUE, giveCsparse = TRUE)
   # First derivative of Omega with respect to phi
   der_sig2u_Omega_phi <- 1/((1 - phi^2)^2) *
-                         as(bandSparse(n = nt, m = nt, k = -c(0:(nt - 1)),
+                         bandSparse(n = nt, m = nt, k = -c(0:(nt - 1)),
                                                diagonals = diags_der_sig2u_Omega_phi,
-                                               symmetric = TRUE), "dsyMatrix")
+                                               symmetric = TRUE)
   # Second derivative of Omega with respect to phi
   part1_der2_sig2u_Omega_phi <- (4 * phi/((1 - phi^2)^3)) *
-                                as(bandSparse(n = nt, m = nt,
+                                bandSparse(n = nt, m = nt,
                                                       k = -c(0:(nt - 1)),
                                                       diagonals = diags_der_sig2u_Omega_phi,
-                                                      symmetric = TRUE), "dsyMatrix")
+                                                      symmetric = TRUE)
   diags_part2_der2_sig2u_Omega_phi <- list(rep(2, nt), rep(2 * phi, nt), rep(2, nt))
   for (l in 3:nt) {
     diags_part2_der2_sig2u_Omega_phi[[l]] <- rep((l - 1) * (l - 2) *
@@ -43,9 +43,9 @@ build_Omega_ar1 <- function(phi, nt) {
                                                    phi^(l - 1), nt)
   }
   part2_der2_sig2u_Omega_phi <- 1/((1 - phi^2)^2) *
-                        as(bandSparse(n = nt, m = nt, k = -c(0:(nt - 1)),
+                        bandSparse(n = nt, m = nt, k = -c(0:(nt - 1)),
                                               diagonals = diags_part2_der2_sig2u_Omega_phi,
-                                              symmetric = TRUE), "dsyMatrix")
+                                              symmetric = TRUE)
 
   der2_sig2u_Omega_phi <- part1_der2_sig2u_Omega_phi + part2_der2_sig2u_Omega_phi
 
