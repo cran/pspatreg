@@ -8,6 +8,7 @@
 \usage{
 impactsnopar(
   obj,
+  variables = NULL,
   listw = NULL,
   alpha = 0.05,
   viewplot = TRUE,
@@ -17,6 +18,10 @@ impactsnopar(
 }
 \arguments{
 \item{obj}{\emph{pspatfit} object fitted using \code{\link{pspatfit}} function.}
+
+\item{variables}{vector including names of non-parametric covariates to 
+obtain impulse functions. If NULL all the nonparametric covariates are 
+included. Default = NULL.}
 
 \item{listw}{should be a spatial neighbours list object created for example by \code{nb2listw} from \code{spdep} package. 
 It can also be a spatial weighting matrix of order (NxN) instead of a listw neighbours list object.}

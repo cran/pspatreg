@@ -15,6 +15,9 @@
 #'   \emph{ps-slx}.        
 #'
 #' @param obj \emph{pspatfit} object fitted using \code{\link{pspatfit}} function. 
+#' @param variables vector including names of non-parametric covariates to 
+#' obtain impulse functions. If NULL all the nonparametric covariates are 
+#' included. Default = NULL. 
 #' @param listw should be a spatial neighbours list object created for example by \code{nb2listw} from \code{spdep} package. 
 #' It can also be a spatial weighting matrix of order (NxN) instead of a listw neighbours list object.
 #' @param alpha numerical value for the significance level of the pointwise 
@@ -202,8 +205,8 @@
 #' }                              
 #'
 #' @export
-impactsnopar <- function(obj, listw = NULL, alpha = 0.05, 
-                         viewplot = TRUE, smooth = TRUE, 
+impactsnopar <- function(obj, variables = NULL, listw = NULL, 
+                         alpha = 0.05, viewplot = TRUE, smooth = TRUE, 
                          span = c(0.1, 0.1, 0.2)) {
   type <- obj$type
   if (is.null(listw)) 
@@ -224,29 +227,31 @@ impactsnopar <- function(obj, listw = NULL, alpha = 0.05,
   varnopar <- varnopar[!grepl("Wlag", varnopar)]
   if (!(length(varnopar) > 0))
     stop("there is no any nonparametric variable in this model")
-  # Build list of nonparametric variables
-  variables <- varnopar
-  for (i in 1:length(varnopar)) {
-    varnopar_i <- stringr::str_extract(varnopar[i], colnames(obj$data))
-    varnopar_i <- varnopar_i[!is.na(varnopar_i)]
-    if (length(varnopar_i) > 1) {
-      # Variables with similar names in database 
-      # Compare from the longest to lowest names 
-      order_varnopar_i <- order(stringr::str_length(varnopar_i), 
-                                decreasing = TRUE)
-      for (j in 1:length(order_varnopar_i)) {
-        varnopar_ij <- varnopar_i[order_varnopar_i[j]]
-        idx_varnopar_ij <- str_detect(colnames(obj$data), varnopar_ij)
-        if (sum(idx_varnopar_ij) > 0) {
-          if (sum(idx_varnopar_ij) > 1) 
-            stop("Some variables share the same name in the database")
-          else {
-            variables[i] <- varnopar_ij
-            break
+  if (is.null(variables)) {
+    # Build list of nonparametric variables
+    variables <- varnopar
+    for (i in 1:length(varnopar)) {
+      varnopar_i <- stringr::str_extract(varnopar[i], colnames(obj$data))
+      varnopar_i <- varnopar_i[!is.na(varnopar_i)]
+      if (length(varnopar_i) > 1) {
+        # Variables with similar names in database 
+        # Compare from the longest to lowest names 
+        order_varnopar_i <- order(stringr::str_length(varnopar_i), 
+                                  decreasing = TRUE)
+        for (j in 1:length(order_varnopar_i)) {
+          varnopar_ij <- varnopar_i[order_varnopar_i[j]]
+          idx_varnopar_ij <- str_detect(colnames(obj$data), varnopar_ij)
+          if (sum(idx_varnopar_ij) > 0) {
+            if (sum(idx_varnopar_ij) > 1) 
+              stop("Some variables share the same name in the database")
+            else {
+              variables[i] <- varnopar_ij
+              break
+            }
           }
         }
-      }
-    } else  variables[i] <- varnopar_i
+      } else  variables[i] <- varnopar_i
+    }
   }
   fitsall <- fit_terms(obj, variables)
   fits <- fitsall$fitted_terms

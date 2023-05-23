@@ -202,14 +202,14 @@ plot_sp2d <- function(object, data,
         points(sp1, sp2, cex = cexpoints)
       title(main = "Spatial Trend (centered)")
       if (addmain) {
-        readline(prompt="Press [enter] to continue")
+        readline(prompt = "Press [enter] to continue")
         f1plot <- ggplot(data = df) +
                   geom_line(mapping = aes(x = sp1,
                                           y = f1_main)) +
                   ggplot2::ylim(min_i, max_i) +
                   ggtitle("Spat. Trend: f1_main")
         print(f1plot)
-        readline(prompt="Press [enter] to continue")
+        readline(prompt = "Press [enter] to continue")
         f2plot <- ggplot(data = df,
                          mapping = aes(x = sp2,
                                        y = f2_main)) +
@@ -219,7 +219,7 @@ plot_sp2d <- function(object, data,
         print(f2plot)
       }
       if (addint) {
-        readline(prompt="Press [enter] to continue")
+        readline(prompt = "Press [enter] to continue")
         df_f12_int <- df[, c("sp1", "sp2", "f12_int")]
         interp_f12_int <- mba.surf(df_f12_int, 
                                    no.X = npoints,

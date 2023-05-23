@@ -224,7 +224,7 @@ plot_impactsnopar <- function(impactsnopar, data, smooth = TRUE,
     }
     oldpar <- par(no.readonly = TRUE)
     on.exit(par(oldpar))
-    par(mfrow = c(3, 1))
+    par(mfrow = c(1, 1))
     plot(var[ord], tot_i[ord], 
          type = "l",
          ylab = paste("f(", name_var, ")"), 
@@ -247,6 +247,7 @@ plot_impactsnopar <- function(impactsnopar, data, smooth = TRUE,
           lty = 2, 
           lwd = 1.5)
     abline(a = 0, b = 0)
+    readline(prompt="Press [enter] to continue")
     plot(var[ord], dir_i[ord], 
          type = "l",
          ylab = paste("f(", name_var, ")"), 
@@ -273,6 +274,7 @@ plot_impactsnopar <- function(impactsnopar, data, smooth = TRUE,
           lty = 2, 
           lwd = 1.5)
     abline(a = 0, b = 0)
+    readline(prompt="Press [enter] to continue")
     plot(var[ord], ind_i[ord], 
          type = "l",
          ylab = paste("f(", name_var, ")"), 

@@ -54,10 +54,18 @@ summary.pspatreg <- function(object,...) {
  names_varnopar <- names(z$bfixed)
  names_varnopar <- names_varnopar[grepl("pspl", names_varnopar)]
  names_varnopar <- gsub("fixed_", "", names_varnopar)
- names_varnopar <- gsub(").1", ")", names_varnopar)
+ if (length(names_varnopar) > 0) {
+   pattpspl_sub <- gsub(".*,","", names_varnopar)
+   for (i in 1:length(names_varnopar)) {
+     names_varnopar[i] <- sub(pattpspl_sub[i], ")",names_varnopar[i])
+     names_varnopar[i] <- sub(",", "", names_varnopar[i])
+   }
+   names(z$bfixed) <- c(names_varpar, names_varnopar)
+   names(z$se_bfixed) <- c(names_varpar, names_varnopar)
+ }
  rdf <- z$df.residual
  r <- z$residuals
- f <- z$fitted.values
+ f <- z$fitted.value
  rss <- sum(r^2)
  resvar <- rss/rdf
  #names_varpar <- gsub("fixed_", "", names_varpar)
