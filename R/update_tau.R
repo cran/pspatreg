@@ -66,7 +66,7 @@ update_tau2d <- function(la, lg, G,
       }
       # Interactions 2nd order
       if (env$f12_int) {
-        G3inv.d <- (1/la["tauf2_main"])*G3inv.n
+        G3inv.d <- (1/la["tauf12.1"])*G3inv.n
         ed3 <- sum(dZtPZ_wide*(G3inv.d*G^2))
         ed3 <- ifelse(ed3 == 0, 1e-50, ed3)
         tau3 <- ifelse(!tau_fixed[3],

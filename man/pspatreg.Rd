@@ -3,6 +3,7 @@
 \docType{package}
 \name{pspatreg}
 \alias{pspatreg}
+\alias{pspatreg-package}
 \title{pspatreg: A package to estimate and make inference for spatial
 and spatio-temporal econometric regression models}
 \description{

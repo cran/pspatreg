@@ -1059,7 +1059,7 @@ pspatfit <- function(formula, data, na.action,
     cfull <- c(cfull, cspt)
   } else {
     sp1 <- sp2 <- time <- NULL
-    Xspt <- Zspt <- dsptlist <- cspt <- NULL
+    Xspt <- Zspt <- dsptlist <-cspt <- NULL
     nknotsspt <- pordspt <- bdegspt <- decomspt <- NULL
   } # if (!is.null(names_varspt))
   if (inherits(mf, "pdata.frame")) {

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Román Mínguez (UCLM), Roberto Basile (UNIVAQ), María Durbán (UC3M)" />
 
-<meta name="date" content="2023-05-23" />
+<meta name="date" content="2023-09-08" />
 
 <title>An introduction to pspatreg</title>
 
@@ -363,7 +363,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">An introduction to pspatreg</h1>
 <h4 class="author">Román Mínguez (UCLM), Roberto Basile (UNIVAQ), María
 Durbán (UC3M)</h4>
-<h4 class="date">2023-05-23</h4>
+<h4 class="date">2023-09-08</h4>
 
 
 <div id="TOC">
@@ -632,12 +632,12 @@ included in the usual way and non-parametric p-spline smooth terms are
 specified using <code>pspl(.)</code> and <code>pspat(.)</code> for the
 non-parametric covariates and spatial or spatio-temporal trends,
 respectively. For example</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> <span class="fu">pspl</span>(x3, <span class="at">nknots =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">pspl</span>(x4, <span class="at">nknots =</span> <span class="dv">20</span>) <span class="sc">+</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">pspt</span>(long, lat, year, <span class="at">nknots =</span> <span class="fu">c</span>(<span class="dv">18</span>,<span class="dv">18</span>,<span class="dv">8</span>),</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">psanova =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_sp1 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_sp2 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nest_time =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> <span class="fu">pspl</span>(x3, <span class="at">nknots =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">pspl</span>(x4, <span class="at">nknots =</span> <span class="dv">20</span>) <span class="sc">+</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>                  <span class="fu">pspt</span>(long, lat, year, <span class="at">nknots =</span> <span class="fu">c</span>(<span class="dv">18</span>,<span class="dv">18</span>,<span class="dv">8</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>                       <span class="at">psanova =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>                       <span class="at">nest_sp1 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), </span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>                       <span class="at">nest_sp2 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>                       <span class="at">nest_time =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div>
 <p>In the example above, the model includes two parametric terms, two
 nonparametric terms, and a spatio-temporal trend (with long and lat as
 spatial coordinates, and year as temporal coordinate). The dimension of

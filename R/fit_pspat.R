@@ -447,57 +447,57 @@ fit_pspat <- function(env, con) {
 	  Zstar <- Matrix(A2 %*% Z)
 	}
 	if (length(np_eff) > 1) { # Random Effects 
-	  if (is.null(time)) {
-	    lG <- build_G2d(la = la, lg = var_comp, env)
-	  } else {
-	    lG <- build_G3d(la = la, lg = var_comp, env)
-	  }
-	  G <- lG$G
-	  Ginv <- lG$Ginv
-	  G_eff <- lG$G_eff
-	  Ginv_eff <- lG$Ginv_eff
+	#   if (is.null(time)) {
+	#     lG <- build_G2d(la = la, lg = var_comp, env)
+	#   } else {
+	#     lG <- build_G3d(la = la, lg = var_comp, env)
+	#   }
+	#   G <- lG$G
+	#   Ginv <- lG$Ginv
+	#   G_eff <- lG$G_eff
+	#   Ginv_eff <- lG$Ginv_eff
 	  assign("G", G, envir = env)
 	  assign("Ginv", Ginv, envir = env)
 	  assign("G_eff", G_eff, envir = env)
 	  assign("Ginv_eff", Ginv_eff, envir = env)
-	  mat <- construct_matrices(Xstar, Zstar, ystar)
-	  C <- construct_block(mat$XtX, 
-	                    t(mat$ZtX*G_eff), 
-	                    mat$ZtX, 
-	                    t(mat$ZtZ*G_eff))
-	  H <- (1/sig2u)*C + D
-	  Hinv <- try(solve(H))
-	  if (inherits(Hinv, "try-error"))
-	    Hinv <- ginv(as.matrix(H))
-	  bfixed <- b[1:np_eff[1]]
-	  names(bfixed) <- gsub("X_", "", colnames(X))
-	  names(bfixed) <- paste("fixed_", 
-	                         names(bfixed), sep = "")
+	  # mat <- construct_matrices(Xstar, Zstar, ystar)
+	  # C <- construct_block(mat$XtX, 
+	  #                   t(mat$ZtX*G_eff), 
+	  #                   mat$ZtX, 
+	  #                   t(mat$ZtZ*G_eff))
+	  # H <- (1/sig2u)*C + D
+	  # Hinv <- try(solve(H))
+	  # if (inherits(Hinv, "try-error"))
+	  #   Hinv <- ginv(as.matrix(H))
+	  # bfixed <- b[1:np_eff[1]]
+	  # names(bfixed) <- gsub("X_", "", colnames(X))
+	  # names(bfixed) <- paste("fixed_", 
+	  #                        names(bfixed), sep = "")
 	  assign("bfixed", bfixed, envir = env)
-	  brandom <- G_eff*b[-(1:np_eff[1])]
-	  names(brandom) <- gsub("Z_", "", colnames(Z))
-	  names(brandom) <- paste("random_", 
-	                          names(brandom), sep = "")
+	  # brandom <- G_eff*b[-(1:np_eff[1])]
+	  # names(brandom) <- gsub("Z_", "", colnames(Z))
+	  # names(brandom) <- paste("random_", 
+	  #                         names(brandom), sep = "")
 	  assign("brandom", brandom, envir = env)
 	  eta <- X %*% bfixed + Z %*% brandom
 	} else { # Only fixed effects
-	  mat <- construct_matrices(Xstar, Zstar, ystar)
-	  # MATRIX C IN (12). PAPER SAP
-	  C <- mat$XtX
-	  H <- (1/sig2u)*C 
-	  Hinv <- try(solve(H))
-	  if (inherits(Hinv, "try-error"))
-	    Hinv <- ginv(as.matrix(H))
-	  b <- as.vector((1/sig2u)*Hinv %*% mat$u[1:np_eff[1]])
-	  bfixed <- b[1:np_eff[1]]
-	  names(bfixed) <- gsub("X_", "", colnames(X))
-	  names(bfixed) <- paste("fixed_", 
-	                         names(bfixed), sep = "")
+	  # mat <- construct_matrices(Xstar, Zstar, ystar)
+	  # # MATRIX C IN (12). PAPER SAP
+	  # C <- mat$XtX
+	  # H <- (1/sig2u)*C 
+	  # Hinv <- try(solve(H))
+	  # if (inherits(Hinv, "try-error"))
+	  #   Hinv <- ginv(as.matrix(H))
+	  # b <- as.vector((1/sig2u)*Hinv %*% mat$u[1:np_eff[1]])
+	  # bfixed <- b[1:np_eff[1]]
+	  # names(bfixed) <- gsub("X_", "", colnames(X))
+	  # names(bfixed) <- paste("fixed_", 
+	  #                        names(bfixed), sep = "")
 	  assign("bfixed", bfixed, envir = env)
 	  brandom <- 0
 	  assign("brandom", brandom, envir = env)
 	  eta <- X %*% bfixed
-	  }
+	}
 	param_optim <- param
   # Valor de log.lik y log.lik.reml en el óptimo
   llikc_reml_optim <- -llikc_reml(param_optim, env)
@@ -595,7 +595,7 @@ fit_pspat <- function(env, con) {
     sefr_fit <- rowSums((solve(A1, XZ) %*% Var_Fr) *
                                   solve(A1, XZ))^0.5
     #residuals <- as.vector((A1 %*% y) - fit_A1y)
-  } else {  
+  } else {
     fit <- solve( kronecker(A1, It), fit_A1y)
     seby_fit_A1y <- rowSums((XZ %*% Var_By) * XZ)^0.5
     seby_fit <- rowSums((

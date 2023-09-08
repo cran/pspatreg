@@ -2,8 +2,8 @@ Package: pspatreg
 Type: Package
 Title: Spatial and Spatio-Temporal Semiparametric Regression Models
         with Spatial Lags
-Version: 1.1.0
-Date: 2023-05-23
+Version: 1.1.1
+Date: 2023-09-08
 Authors@R: 
   c(person("Roman", "Minguez", email = "roman.minguez@uclm.es", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0490-3181")),
@@ -44,10 +44,10 @@ RdMacros: Rdpack
 URL: https://github.com/rominsal/pspatreg
 BugReports: https://github.com/rominsal/pspatreg/issues
 NeedsCompilation: no
-Packaged: 2023-05-23 08:19:16 UTC; Roman.Minguez
+Packaged: 2023-09-08 09:17:30 UTC; Roman.Minguez
 Author: Roman Minguez [aut, cre] (<https://orcid.org/0000-0002-0490-3181>),
   Roberto Basile [aut] (<https://orcid.org/0000-0002-4531-2820>),
   Maria Durban [aut] (<https://orcid.org/0000-0002-4272-7895>),
   Gonzalo Espana-Heredia [aut]
 Repository: CRAN
-Date/Publication: 2023-05-23 09:00:02 UTC
+Date/Publication: 2023-09-08 10:40:06 UTC

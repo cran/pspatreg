@@ -1,7 +1,8 @@
 #' @title pspatreg: A package to estimate and make inference for spatial
 #' and spatio-temporal econometric regression models
 #' 
-#' @docType package
+#' @docType package 
+#' @aliases pspatreg-package
 #' @name pspatreg
 #' @rdname pspatreg
 #'
