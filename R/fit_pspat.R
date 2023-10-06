@@ -153,8 +153,14 @@ fit_pspat <- function(env, con) {
                             t(mat$ZtZ*G_eff)))
           H <- (1/sig2u)*C + D
           Hinv <- try(solve(H))
-          if (inherits(Hinv, "try-error"))
-            Hinv <- ginv(as.matrix(H))
+          if (inherits(Hinv, "try-error")) {
+            message("\n Singular Matrix. Stop the process without convergence") 
+            message(paste('\n Iteration SAP: ', it - 1))
+            message(paste('\n edftot: ', edftot))
+            message(paste('\n sig2u ', la[1]))
+            #Hinv <- ginv(as.matrix(H))
+            break
+          }
           b <- as.vector((1/sig2u)*Hinv %*% mat$u)
           bfixed <- b[1:np_eff[1]]
           names(bfixed) <- gsub("X_", "", colnames(X))
@@ -297,8 +303,14 @@ fit_pspat <- function(env, con) {
           C <- Matrix(mat$XtX)
           H <- (1/sig2u)*C 
           Hinv <- try(solve(H))
-          if (inherits(Hinv, "try-error"))
-            Hinv <- ginv(as.matrix(H))
+          if (inherits(Hinv, "try-error")) { 
+            message("\n Singular Matrix. Stop the process without convergence") 
+            message(paste('\n Iteration SAP: ', it - 1))
+            message(paste('\n edftot: ', edftot))
+            message(paste('\n sig2u ', la[1]))
+            #Hinv <- ginv(as.matrix(H))
+            break
+          }            
           b <- as.vector((1/sig2u)*Hinv %*% mat$u[1:np_eff[1]])
           bfixed <- b[1:np_eff[1]]
           names(bfixed) <- gsub("X_", "", colnames(X))
@@ -335,9 +347,9 @@ fit_pspat <- function(env, con) {
 	              round(edfnopar, 2))) }
 	      #  convergence check
 	      if (nfull > 500) {
-	        if (dedftot < con$tol2) break
+	        if (abs(dedftot) < con$tol2) break
 	      } else {
-	        if (dla < con$tol1) break
+	        if (abs(dla) < con$tol1) break
 	      } 
 	  } # end for (it in 1:maxit)
     if (!(env$type %in% c("sim", "slx")) || env$cor == "ar1") { 
@@ -543,8 +555,10 @@ fit_pspat <- function(env, con) {
     V2 <- mat$XtX
     H2 <- (1/sig2u)*V2 
     Hinv2 <- try(solve(H2))
-    if (inherits(Hinv2, "try-error"))
+    if (inherits(Hinv2, "try-error")) {
+      message("Problems to compute covariance matrix. Near singular matrix")
       Hinv2 <- ginv(as.matrix(H2))
+    }
   }
   Var_By <- Hinv2
   rownames(Var_By) <- colnames(Var_By) <- c(names(bfixed), 

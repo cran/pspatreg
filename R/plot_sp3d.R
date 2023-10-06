@@ -117,8 +117,11 @@ plot_sp3d <- function(object, data,
   data$sp3dtrend <- sp3dfitl$fitted_terms[, "spttrend"]
   if (object$psanova) {
     data$f1_main <- sp3dfitl$fitted_terms[, "f1_main"]
+    data$f1_main <- data$f1_main - mean(data$f1_main)
     data$f2_main <- sp3dfitl$fitted_terms[, "f2_main"]
+    data$f2_main <- data$f2_main - mean(data$f2_main)
     data$f12_int <- sp3dfitl$fitted_terms[, "f12_int"]
+    data$f12_int <- data$f12_int - mean(data$f12_int)
     data$intercept <- sp3dfitl$fitted_terms[, "Intercept"]
   } 
   for (i in seq_along(time_index)) {
@@ -126,8 +129,15 @@ plot_sp3d <- function(object, data,
     data_i <- data[time_var == year_i, ]
     df_i <- data_i[, c("sp3dtrend")]
     df_i$sp3dtrend <- df_i$sp3dtrend - mean(df_i$sp3dtrend)
-    min_i <- min(df_i$sp3dtrend) 
-    max_i <- max(df_i$sp3dtrend) 
+    min_i_sp3dtrend <- min(df_i$sp3dtrend)
+    max_i_sp3dtrend <- max(df_i$sp3dtrend)
+    range_i_sp3dtrend <- c(min_i_sp3dtrend - 0.01, 
+                         max_i_sp3dtrend + 0.01)
+    breaks_i_sp3dtrend <- seq(min_i_sp3dtrend - 0.01, 
+                            max_i_sp3dtrend + 0.01, 
+                            by = diff(range(range_i_sp3dtrend))/5)
+    min_i <- min_i_sp3dtrend 
+    max_i <- max_i_sp3dtrend 
     if (object$psanova && addmain) {
       min_i <- min(c(min_i, data$f1_main, 
                      data$f2_main))
@@ -143,7 +153,7 @@ plot_sp3d <- function(object, data,
                     by = diff(range(range_i))/5) 
     plot(df_i, main = paste("Spatial Trend (centered) for : ", 
                             year_i), 
-        breaks = breaks_i)
+        breaks = breaks_i_sp3dtrend)
     if (object$psanova && addmain) {
       readline(prompt="Press [enter] to continue")
       df_i <- data_i[, c("f1_main")]

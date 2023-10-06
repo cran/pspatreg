@@ -15,7 +15,8 @@ pspl(
   nknots = 10,
   bdeg = 3,
   pord = 2,
-  decom = 3
+  decom = 2,
+  scale = TRUE
 )
 
 pspt(
@@ -33,7 +34,7 @@ pspt(
   nknots = c(10, 10, 5),
   bdeg = c(3, 3, 3),
   pord = c(2, 2, 2),
-  decom = 3,
+  decom = 2,
   psanova = FALSE,
   nest_sp1 = 1,
   nest_sp2 = 1,
@@ -72,6 +73,10 @@ B-spline basis matrix and \emph{U_n} is the nullspace basis of the
 penalty matrix. If \code{decom = 2} the fixed part is given by
 \eqn{X = [1|x|...|x^(pord-1)] }. Default = 2.}
 
+\item{scale}{Logical value to scale the spatial and temporal 
+coordinates before the estimation of semiparametric model. 
+Default = `TRUE`}
+
 \item{sp1}{Name of the first spatial coordinate.}
 
 \item{sp2}{Name of the second spatial coordinate.}
@@ -79,10 +84,6 @@ penalty matrix. If \code{decom = 2} the fixed part is given by
 \item{time}{Name of the temporal coordinate. It must be 
 specified only for spatio-temporal trends when using panel data. 
 Default = `NULL`.}
-
-\item{scale}{Logical value to scale the spatial and temporal 
-coordinates before the estimation of semiparametric model. 
-Default = `TRUE`}
 
 \item{ntime}{Number of temporal periods in panel data.}
 
@@ -254,7 +255,7 @@ summary(gamgeo2danovasar)
 ## 103 Italian provinces. Period 1996-2019
 data(unemp_it, package = "pspatreg")
 ## Wsp_it is a matrix. Create a neighboord list 
-lwsp_it <- spdep::mat2listw(Wsp_it)
+lwsp_it <- spdep::mat2listw(Wsp_it, style = "W")
  ### Spatio-temporal semiparametric ANOVA model 
  ### Interaction terms f12,f1t,f2t and f12t with nested basis
  ### Remark: nest_sp1, nest_sp2 and nest_time must be divisors of nknots

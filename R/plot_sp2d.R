@@ -145,6 +145,13 @@ plot_sp2d <- function(object, data,
     sp2 <- spco[, 2]
     sp2dtrend <- sp2dfitl$fitted_terms[, "spttrend"]
     sp2dtrend <- sp2dtrend - mean(sp2dtrend)
+    min_sp2dtrend <- min(sp2dtrend)
+    max_sp2dtrend <- max(sp2dtrend)
+    range_sp2dtrend <- c(min_sp2dtrend - 0.01, 
+                         max_sp2dtrend + 0.01)
+    breaks_sp2dtrend <- seq(min_sp2dtrend - 0.01, 
+                            max_sp2dtrend + 0.01, 
+                    by = diff(range(range_sp2dtrend))/15)
     min_i <- min(sp2dtrend) 
     max_i <- max(sp2dtrend)
     if (object$psanova) {
@@ -152,6 +159,9 @@ plot_sp2d <- function(object, data,
       f2_main <- sp2dfitl$fitted_terms[, "f2_main"]
       f12_int <- sp2dfitl$fitted_terms[, "f12_int"]
       intercept <- sp2dfitl$fitted_terms[, "Intercept"]
+      f1_main <- f1_main - mean(f1_main)
+      f2_main <- f2_main - mean(f2_main)
+      f12_int <- f12_int - mean(f12_int)
       if (addmain) {
         min_i <- min(c(min_i, f1_main, f2_main))
         max_i <- max(c(max_i, f1_main, f2_main))
@@ -172,9 +182,9 @@ plot_sp2d <- function(object, data,
                                  no.Y = npoints,
                                  extend = TRUE)$xyz
       fields::image.plot(interp_trend2d,
-                        breaks = breaks_i,
+                        breaks = breaks_sp2dtrend,
                         col = hcl.colors( palette = "Viridis",
-                        n = (length(breaks_i) - 1)))
+                        n = (length(breaks_sp2dtrend) - 1)))
       if (addcontour)
         graphics::contour(interp_trend2d, add = TRUE)
       if (addpoints)
@@ -193,9 +203,9 @@ plot_sp2d <- function(object, data,
                                  no.Y = npoints,
                                  extend = TRUE)$xyz      
       fields::image.plot(interp_trend2d,
-                        breaks = breaks_i,
-                        col = hcl.colors( palette = "Viridis",
-                        n = (length(breaks_i) - 1)))
+                        breaks = breaks_sp2dtrend,
+                        col = hcl.colors(palette = "Viridis",
+                        n = (length(breaks_sp2dtrend) - 1)))
       if (addcontour)
         contour(interp_trend2d, add = TRUE)
       if (addpoints)
@@ -241,8 +251,13 @@ plot_sp2d <- function(object, data,
     data$sp2dtrend <- data$sp2dtrend - 
                         mean(data$sp2dtrend)
     df <- data[ ,"sp2dtrend"]
-    min_i <- min(df$sp2dtrend)
-    max_i <- max(df$sp2dtrend)
+    min_sp2dtrend <- min(df$sp2dtrend)
+    max_sp2dtrend <- max(df$sp2dtrend)
+    range_sp2dtrend <- c(min_sp2dtrend - 0.01, 
+                         max_sp2dtrend + 0.01)
+    breaks_sp2dtrend <- seq(min_sp2dtrend - 0.01, 
+                            max_sp2dtrend + 0.01, 
+                    by = diff(range(range_sp2dtrend))/5)
     if (!(object$psanova)) {
       plot(df, main = "Spatial Trend (centered)")
     } else { # object$psanova == TRUE
@@ -250,7 +265,12 @@ plot_sp2d <- function(object, data,
       data$f2_main <- sp2dfitl$fitted_terms[, "f2_main"]
       data$f12_int <- sp2dfitl$fitted_terms[, "f12_int"]
       data$intercept <- sp2dfitl$fitted_terms[, "Intercept"]
+      data$f1_main <- data$f1_main - mean(data$f1_main)
+      data$f2_main <- data$f2_main - mean(data$f2_main)
+      data$f12_int <- data$f12_int - mean(data$f12_int)
       # Recompute min_i and max_i
+      min_i <- min(df$sp2dtrend)
+      max_i <- max(df$sp2dtrend)
       if (addmain) {
         min_i <- min(c(min_i, data$f1_main, 
                        data$f2_main))
@@ -264,7 +284,7 @@ plot_sp2d <- function(object, data,
       range_i <- c(min_i - 0.01, max_i + 0.01)
       breaks_i <- seq(min_i - 0.01, max_i + 0.01, 
                       by = diff(range(range_i))/5)
-      plot(df, breaks = breaks_i,
+      plot(df, breaks = breaks_sp2dtrend,
            main = "Spatial Trend (centered)")
       if (addmain) {
         readline(prompt="Press [enter] to continue")

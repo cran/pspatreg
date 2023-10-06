@@ -956,7 +956,7 @@ pspatfit <- function(formula, data, na.action,
     }
   }
   assign("Wsp", Wsp, envir = env)
-   mt <- terms(formula, specials = c("pspl", "pspt"))
+  mt <- terms(formula, specials = c("pspl", "pspt"))
   # Careful: The dataset could include factors...
   Xmodel <- model.matrix(mt, mf)
   names_Xmodel <- colnames(Xmodel)
@@ -986,67 +986,19 @@ pspatfit <- function(formula, data, na.action,
   if (nvarspt > 0) {
     varspt <- names_varspt
     Bi <- mf[, c(varspt)]
-    sp1 <- attr(Bi, "sp1")
-    sp2 <- attr(Bi, "sp2")
-    nsp <- length(sp1)
-    time <- attr(Bi, "time")
-    ntime <- attr(Bi, "ntime")
-    nknotsspt <- attr(Bi, "nknots")
-    if (length(nknotsspt) == 2) 
-      names(nknotsspt) <- c("sp1", "sp2")
-    if (length(nknotsspt) == 3) 
-      names(nknotsspt) <- c("sp1", "sp2", "time")
-    nknotsfull <- c(nknotsfull, nknotsspt)
-    bdegspt <- attr(Bi, "bdeg")
-    if (length(bdegspt) == 2) 
-      names(bdegspt) <- c("sp1", "sp2")
-    if (length(bdegspt) == 3) 
-      names(bdegspt) <- c("sp1", "sp2", "time")
-    bdegfull <- c(bdegfull, bdegspt)
-    pordspt <- attr(Bi, "pord")
-    if (length(pordspt) == 2) 
-      names(pordspt) <- c("sp1","sp2")
-    if (length(pordspt) == 3) 
-      names(pordspt) <- c("sp1", "sp2", "time")
-    pordfull <- c(pordfull, pordspt)
-    decomspt <- attr(Bi, "decom")
-    names(decomspt) <- c("spt")
-    decomfull <- c(decomfull, decomspt)
-    psanova <- attr(Bi, "psanova")
-    nest_sp1 <- attr(Bi, "nest_sp1")
-    nest_sp2 <- attr(Bi, "nest_sp2")
-    nest_time <- attr(Bi, "nest_time")
-    f1_main <- attr(Bi, "f1_main")
-    f2_main <- attr(Bi, "f2_main")
-    ft_main <- attr(Bi, "ft_main")
-    f12_int <- attr(Bi, "f12_int")
-    f1t_int <- attr(Bi, "f1t_int")
-    f2t_int <- attr(Bi, "f2t_int")
-    f12t_int <- attr(Bi, "f12t_int")
-    Bsptfull <- Bspt(sp1 = sp1, sp2 = sp2, time = time, 
-                     nfull = nfull, ntime = ntime, 
-                     psanova = psanova, Bi = Bi,
-                     bdegspt = bdegspt)
-    sp1_short <- Bsptfull$sp1 
-    sp2_short <- Bsptfull$sp2
-    nsp_short <- length(sp1_short)
-    time_short <- Bsptfull$time
-    Bsptlist <- Bsptfull$Bsptlist
+    Bsptfull <- Bspt(Bi = Bi)
+    pordfull <- c(pordfull, Bsptfull$pordspt)
+    decomfull <- c(decomfull, Bsptfull$decomspt)
+    sp1 <- Bsptfull$sp1 
+    sp2 <- Bsptfull$sp2 
+    time <- Bsptfull$time 
+    # sp1_short <- Bsptfull$sp1 
+    # sp2_short <- Bsptfull$sp2
+    # nsp_short <- length(sp1_short)
+    # time_short <- Bsptfull$time
+    # Bsptlist <- Bsptfull$Bsptlist
     #rm(Bsptfull, Bi)
-    XZsptlist <- B_XZ_spt(sp1 = sp1_short, 
-                          sp2 = sp2_short, 
-                          time = time_short, 
-                          pordspt = pordspt, 
-                          psanova = psanova,
-                          decomspt = decomspt, 
-                          f1_main = f1_main,
-                          f2_main = f2_main, 
-                          ft_main = ft_main,
-                          f12_int = f12_int, 
-                          f1t_int = f1t_int,
-                          f2t_int = f2t_int, 
-                          f12t_int = f12t_int,
-                          Bsptlist = Bsptlist)
+    XZsptlist <- B_XZ_spt(Bsptfull)
     Xspt <- XZsptlist$Xspt
     if (attr(mt, "intercept") == 1) 
       Xspt <- Xspt[, -c(1), drop = FALSE] # Remove intercept
@@ -1190,14 +1142,17 @@ pspatfit <- function(formula, data, na.action,
       bdeg_i <- attr(Bi, "bdeg")
       decom_i <- attr(Bi, "decom")
       x_i <- attr(Bi, "x")
+      if (ncol(x_i) > 1) { # panel data
+         x_i <- t(x_i) # fast index time
+         x_i <- as.vector(x_i)
+      }
       names(nknots_i) <- names(pord_i) <- varnopar
       names(bdeg_i) <- names(decom_i) <- varnopar
       nknotsnopar <- c(nknotsnopar, nknots_i)
       pordnopar <- c(pordnopar, pord_i)
       bdegnopar <- c(bdegnopar, bdeg_i)
       decomnopar <- c(decomnopar, decom_i)
-      BtoXZ <- B_XZ(Bi, x = x_i, pord = pord_i, 
-                    decom = decom_i)
+      BtoXZ <- B_XZ(Bi, x = x_i, pord = pord_i, decom = decom_i)
       Xi <- as.matrix(BtoXZ$X) 
       if (attr(mt, "intercept") == 1 | 
           (demean == TRUE)) 
@@ -1255,20 +1210,20 @@ pspatfit <- function(formula, data, na.action,
     assign("sp1", sp1, envir = env)
     assign("sp2", sp1, envir = env)
     assign("time", time, envir = env)
-    assign("Bsptlist", Bsptlist, envir = env)
+    assign("Bsptlist", Bsptfull$Bsptlist, envir = env)
     assign("cspt", cspt, envir = env)
     assign("dsptlist", dsptlist, envir = env)
-    assign("bdegspt", bdegspt, envir = env)
-    assign("pordspt", pordspt, envir = env)
-    assign("nknotsspt", nknotsspt, envir = env)
-    assign("psanova", psanova, envir = env)
-    assign("f1_main", f1_main, envir = env)
-    assign("f2_main", f2_main, envir = env)
-    assign("ft_main", ft_main, envir = env)
-    assign("f12_int", f12_int, envir = env)
-    assign("f1t_int", f1t_int, envir = env)
-    assign("f2t_int", f2t_int, envir = env)
-    assign("f12t_int", f12t_int, envir = env)
+    assign("bdegspt", Bsptfull$bdegspt, envir = env)
+    assign("pordspt", Bsptfull$pordspt, envir = env)
+    assign("nknotsspt", Bsptfull$nknotsspt, envir = env)
+    assign("psanova", Bsptfull$psanova, envir = env)
+    assign("f1_main", Bsptfull$f1_main, envir = env)
+    assign("f2_main", Bsptfull$f2_main, envir = env)
+    assign("ft_main", Bsptfull$ft_main, envir = env)
+    assign("f12_int", Bsptfull$f12_int, envir = env)
+    assign("f1t_int", Bsptfull$f1t_int, envir = env)
+    assign("f2t_int", Bsptfull$f2t_int, envir = env)
+    assign("f12t_int", Bsptfull$f12t_int, envir = env)
   }
   if (nvarnopar > 0) {
     assign("cnopar", cnopar, envir = env)
@@ -1296,8 +1251,12 @@ pspatfit <- function(formula, data, na.action,
   if (!is.null(listw)) model_fit$listw <- listw
   else model_fit$listw <- NULL
   model_fit$Durbin <- Durbin
-  model_fit$X <- Xfull
-  model_fit$Z <- Zfull
+  if (!is.null(Xfull))  
+    model_fit$X <- as.matrix(Xfull)
+  else model_fit$X <- NULL
+  if (!is.null(Zfull))  
+    model_fit$Z <- as.matrix(Zfull)
+  else model_fit$Z <- NULL
   model_fit$y <- y
   if (dynamic) {
     # Add the last observation

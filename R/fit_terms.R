@@ -134,8 +134,8 @@ fit_terms <- function(object, variables, intercept = FALSE){
            term_fixed_j <- Xj %*% bfixed_j
            term_random_j <- Zj %*% brandom_j
            term_j <- term_fixed_j + term_random_j
-           names(term_fixed_j) <- names(term_random_j) <- eff_spttrend_psanova_j
-           names(term_j) <- eff_spttrend_psanova_j
+           #names(term_fixed_j) <- names(term_random_j) <- eff_spttrend_psanova_j
+           #names(term_j) <- eff_spttrend_psanova_j
            fitted_terms_fixed <- cbind(term_fixed_j, fitted_terms_fixed)
            fitted_terms_random <- cbind(term_random_j, fitted_terms_random)
            fitted_terms <- cbind(term_j, fitted_terms)
@@ -229,6 +229,12 @@ fit_terms <- function(object, variables, intercept = FALSE){
          colnames(fitted_terms_fixed)[1] <- "spttrend"
          colnames(fitted_terms_random)[1] <- "spttrend"
          colnames(fitted_terms)[1] <- "spttrend"
+         if(length(grep("Intercept", match_fixed)) > 0) {
+           fitted_terms_fixed[, c("spttrend")] <- fitted_terms_fixed[, c("spttrend")] - 
+             fitted_terms_fixed[, c("Intercept")]
+           fitted_terms[, c("spttrend")] <- fitted_terms[, c("spttrend")] - 
+             fitted_terms[, c("Intercept")]
+         }
          ## Ruppert method for standard errors. Very slow...
          # index_varname_spt <- vector(mode = "logical", length = ncol(cov_b))
          # # Locate the indexes of psanova trend 

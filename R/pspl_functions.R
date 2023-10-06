@@ -113,7 +113,7 @@
 #' ## 103 Italian provinces. Period 1996-2019
 #' data(unemp_it, package = "pspatreg")
 #' ## Wsp_it is a matrix. Create a neighboord list 
-#' lwsp_it <- spdep::mat2listw(Wsp_it)
+#' lwsp_it <- spdep::mat2listw(Wsp_it, style = "W")
 #'  ### Spatio-temporal semiparametric ANOVA model 
 #'  ### Interaction terms f12,f1t,f2t and f12t with nested basis
 #'  ### Remark: nest_sp1, nest_sp2 and nest_time must be divisors of nknots
@@ -160,13 +160,15 @@ NULL
 #' @param nknots Number of knots for spline basis. Default = 10.
 #' @param bdeg Order of the B-spline basis. Default = 3.
 #' @param pord Order of the penalty for the difference matrix 
-#'   in P-spline. Default = 2.  
+#'   in P-spline. Default = 2.  #'   
 #' @param decom Type of decomposition of fixed part when P-spline
 #'   term is expressed as a mixed model. If \code{decom = 1} the 
 #'   fixed part is given by \eqn{X = B*U_n} where \emph{B} is the
 #'   B-spline basis matrix and \emph{U_n} is the nullspace basis of the 
 #'   penalty matrix. If \code{decom = 2} the fixed part is given by
-#'   \eqn{X = [1|x|...|x^(pord-1)] }. Default = 1.
+#'   \eqn{X = [1|x|...|x^(pord-1)] }. Default = 2.
+#' @param scale `TRUE` (default) if data are previously scaled (centered 
+#' and divided by the standard deviation).    
 #'   
 #' @description 
 #'   \code{pspl()}: This function allows the inclusion of terms for
@@ -186,12 +188,13 @@ NULL
 pspl <- function(x, xl = min(x) - 0.01*abs(min(x)), 
                  xr = max(x) + 0.01*abs(max(x)),
                 nknots = 10, bdeg = 3, pord = 2, 
-                decom = 3){
+                decom = 2, scale = TRUE) {
+  if (scale) x <- scale(x)
   dx <- (xr - xl)/nknots
   knots <- seq(xl - bdeg*dx, xr + bdeg*dx, by = dx)
   B <- spline.des(knots, x, bdeg + 1, 0*x)$design
   a <- list(nknots = nknots, knots = knots, bdeg = bdeg, 
-            pord = pord, decom = decom, x = x)
+            pord = pord, decom = decom, scale = scale, x = x)
   attributes(B) <- c(attributes(B), a)
   class(B) <- c("bs", "basis", "matrix")
   B
@@ -296,7 +299,7 @@ pspt <- function(sp1, sp2, time = NULL, scale = TRUE, ntime = NULL,
                 xl_time = min(time) - 0.01*abs(min(time)), 
                 xr_time = max(time) + 0.01*abs(max(time)),
                 nknots = c(10,10,5), bdeg = c(3,3,3), pord = c(2,2,2),
-                decom = 3, psanova = FALSE,
+                decom = 2, psanova = FALSE,
                 nest_sp1 = 1, nest_sp2 = 1, nest_time = 1,
                 f1_main = TRUE, f2_main = TRUE, ft_main = TRUE,
                 f12_int = TRUE, f1t_int = TRUE, f2t_int = TRUE,
@@ -321,7 +324,7 @@ pspt <- function(sp1, sp2, time = NULL, scale = TRUE, ntime = NULL,
   }
   B <- NULL
   if (psanova){
-    decom <- 2
+    #decom <- 2
     if (length(nest_sp1) != length(nest_sp2)) 
       stop("nest_sp1 and nest_sp2 must have same length")
     if (!is.null(time)) {
@@ -342,11 +345,11 @@ pspt <- function(sp1, sp2, time = NULL, scale = TRUE, ntime = NULL,
                    nknots = nknots[1]/nest_sp1[i],
                    bdeg = bdeg[1], pord = pord[1], 
                    decom = decom)
-       colnames(Bsp1) <- paste("Bsp1", 1:ncol(Bsp1), sep=".")
+       colnames(Bsp1) <- paste("Bsp1", 1:ncol(Bsp1), sep = ".")
        Bsp2 <- pspl(sp2, xl = xl_sp2, xr = xr_sp2,
                     nknots = nknots[2]/nest_sp2[i],
-                    bdeg = bdeg[2], pord = pord[2], decom=decom)
-       colnames(Bsp2) <- paste("Bsp2",1:ncol(Bsp2), sep=".")
+                    bdeg = bdeg[2], pord = pord[2], decom = decom)
+       colnames(Bsp2) <- paste("Bsp2",1:ncol(Bsp2), sep = ".")
        Bi <- cbind(Bsp1,Bsp2)
        if(!is.null(time)) {
          Btime <- pspl(time, xl = xl_time, xr = xr_time,
@@ -394,7 +397,10 @@ pspt <- function(sp1, sp2, time = NULL, scale = TRUE, ntime = NULL,
 }
 
 ################################################################
-B_XZ <- function(B, x = NULL, pord = 2 , decom = 3) {
+B_XZ <- function(B, x, pord, decom) {
+  # pord <- attr(B, which = "pord")
+  # decom <- attr(B, which = "decom")
+  # x <- attr(B, which = "x")
   m <- ncol(B)
   n <- nrow(B)
   D <- diff(diag(m), differences = pord)
@@ -408,6 +414,7 @@ B_XZ <- function(B, x = NULL, pord = 2 , decom = 3) {
     if (is.null(x)) stop("decom = 2 and is.null(x) = TRUE")
     X <- NULL
     for(i in 1:(pord)){ X <- cbind(X, x^(i-1)) }
+    X <- Matrix(X, sparse = TRUE)
   }
   else if (decom == 3) {
     X <- B %*% ((P.svd$u)[, -(1:(m - pord))])
@@ -420,57 +427,80 @@ B_XZ <- function(B, x = NULL, pord = 2 , decom = 3) {
 
 #############################################################
 
-Bspt <- function(sp1, sp2, time, nfull, ntime, psanova,
-                 Bi, bdegspt){
+Bspt <- function(Bi) {
   Bi_col <- colnames(Bi)
+  nfull <- nrow(Bi)
+  time <- attr(Bi, "time")
+  if (!is.null(time)) { #Spatiotemporal data
+    time <- unique(time)
+    ntime <- length(time)
+    ## VIP: FOR SPATIO-TEMPORAL DATA QUICK INDEX IS TIME...
+    row_seq_sp <- seq(from = 1, to = nfull, by = ntime)
+    sp1 <- attr(Bi, "sp1")
+    sp1 <- sp1[row_seq_sp]
+    sp2 <- attr(Bi, "sp2")
+    sp2 <- sp2[row_seq_sp]
+  } else { # Spatial data
+    ntime <- 1
+    sp1 <- attr(Bi, "sp1")
+    sp2 <- attr(Bi, "sp2")
+  }  
+  nsp <- length(sp1)
+  nknotsspt <- attr(Bi, "nknots")
+  bdegspt <- attr(Bi, "bdeg")
+  pordspt <- attr(Bi, "pord")
+  decomspt <- attr(Bi, "decom")
+  psanova <- attr(Bi, "psanova")
+  nest_sp1 <- attr(Bi, "nest_sp1")
+  nest_sp2 <- attr(Bi, "nest_sp2")  
+  nest_time <- attr(Bi, "nest_time")
+  f1_main <- attr(Bi, "f1_main")
+  f2_main <- attr(Bi, "f2_main")
+  ft_main <- attr(Bi, "ft_main")
+  f12_int <- attr(Bi, "f12_int")
+  f1t_int <- attr(Bi, "f1t_int")
+  f2t_int <- attr(Bi, "f2t_int")
+  f12t_int <- attr(Bi, "f12t_int")
   Bsp1_col <- Bi_col[grepl("sp1", Bi_col)]
   Bsp2_col <- Bi_col[grepl("sp2", Bi_col)]
-  Bsp1 <- Bi[, c(Bsp1_col)]
-  Bsp2 <- Bi[, c(Bsp2_col)]
+  Bsp1 <- Matrix(Bi[, c(Bsp1_col)], sparse = TRUE)
+  Bsp2 <- Matrix(Bi[, c(Bsp2_col)], sparse = TRUE)
   rm(Bsp1_col, Bsp2_col)
   if (!is.null(time)) {
+    ## VIP: FOR SPATIO-TEMPORAL DATA QUICK INDEX IS TIME...
     Btime_col <- Bi_col[grepl("time", Bi_col)]
-    Btime <- Bi[, c(Btime_col)]
-    time <- time[1:ntime]
-    Btime <- Btime[1:ntime,]
-    rm(Btime_col)
-    if ((nfull %% ntime) != 0) 
-      stop("ntime is not a divisor of the sample size")
-    seq_sp <- seq(from = 1, to = nfull, by = ntime)
-    sp1 <- sp1[seq_sp]
-    sp2 <- sp2[seq_sp]
-    nsp <- length(sp1)
-    Bsp1 <- Bsp1[seq_sp,]
-    Bsp2 <- Bsp2[seq_sp,]
+    Btime <- Matrix(Bi[1:ntime, c(Btime_col)], sparse = TRUE)
+    row_seq_sp <- seq(from = 1, to = nfull, by = ntime)
+    Bsp1 <- Bsp1[row_seq_sp, ]
+    Bsp2 <- Bsp2[row_seq_sp, ]
   }  else Btime <- NULL
   rm(Bi, Bi_col)
   if (!psanova) { # PSANOVA=FALSE
     Bsptlist <- list(Bsp1 = Bsp1, Bsp2 = Bsp2, Btime = Btime)
-    #spt_names <- c("sp1","sp2","time")
     rm(Bsp1,Bsp2,Btime)
   } else {# PSANOVA = TRUE
     Bsp1_col <- colnames(Bsp1)
     Bsp1_col_main <- Bsp1_col[grepl("main", Bsp1_col)]
     Bsp1_col_int2ord <- Bsp1_col[grepl("int2ord", Bsp1_col)]
-    Bsp1_main <- Bsp1[, c(Bsp1_col_main)]
-    Bsp1_int2ord <- Bsp1[, c(Bsp1_col_int2ord)]
+    Bsp1_main <- Matrix(Bsp1[, c(Bsp1_col_main)], sparse = TRUE)
+    Bsp1_int2ord <- Matrix(Bsp1[, c(Bsp1_col_int2ord)], sparse = TRUE)
     Bsp2_col <- colnames(Bsp2)
     Bsp2_col_main <- Bsp2_col[grepl("main", Bsp2_col)]
     Bsp2_col_int2ord <- Bsp2_col[grepl("int2ord", Bsp2_col)]
-    Bsp2_main <- Bsp2[, c(Bsp2_col_main)]
-    Bsp2_int2ord <- Bsp2[, c(Bsp2_col_int2ord)]
+    Bsp2_main <- Matrix(Bsp2[, c(Bsp2_col_main)], sparse = TRUE)
+    Bsp2_int2ord <- Matrix(Bsp2[, c(Bsp2_col_int2ord)], sparse = TRUE)
     if (!is.null(time)){
       Bsp1_col_int3ord <- Bsp1_col[grepl("int3ord", Bsp1_col)]
-      Bsp1_int3ord <- Bsp1[, c(Bsp1_col_int3ord)]
+      Bsp1_int3ord <- Matrix(Bsp1[, c(Bsp1_col_int3ord)], sparse = TRUE)
       Bsp2_col_int3ord <- Bsp2_col[grepl("int3ord", Bsp2_col)]
-      Bsp2_int3ord <- Bsp2[, c(Bsp2_col_int3ord)]
+      Bsp2_int3ord <- Matrix(Bsp2[, c(Bsp2_col_int3ord)], sparse = TRUE)
       Btime_col <- colnames(Btime)
       Btime_col_main <- Btime_col[grepl("main", Btime_col)]
       Btime_col_int2ord <- Btime_col[grepl("int2ord", Btime_col)]
-      Btime_main <- Btime[, c(Btime_col_main)]
-      Btime_int2ord <- Btime[, c(Btime_col_int2ord)]
+      Btime_main <- Matrix(Btime[, c(Btime_col_main)], sparse = TRUE)
+      Btime_int2ord <- Matrix(Btime[, c(Btime_col_int2ord)], sparse = TRUE)
       Btime_col_int3ord <- Btime_col[grepl("int3ord", Btime_col)]
-      Btime_int3ord <- Btime[, c(Btime_col_int3ord)]
+      Btime_int3ord <- Matrix(Btime[, c(Btime_col_int3ord)], sparse = TRUE)
     } else {
       Bsp1_int3ord <- Bsp2_int3ord <- NULL
       Bsp1_col_int3ord <- Bsp2_col_int3ord <- NULL
@@ -488,19 +518,41 @@ Bspt <- function(sp1, sp2, time, nfull, ntime, psanova,
                      Bsp2_int3ord = Bsp2_int3ord,
                      Btime_int3ord = Btime_int3ord)
   }
-  res <- list(sp1 = sp1, sp2 = sp2, time = time,
-              nsp = length(sp1), ntime = ntime,
-              Bsptlist = Bsptlist)
+  res <- list(sp1 = sp1, sp2 = sp2, time = time, 
+              nknotsspt = nknotsspt, bdegspt = bdegspt,
+              pordspt = pordspt, decomspt = decomspt,
+              psanova = psanova, nest_sp1 = nest_sp1,
+              nest_sp2 =  nest_sp2, nest_time = nest_time,
+              f1_main = f1_main, f2_main = f2_main,
+              ft_main = ft_main, f12_int = f12_int,
+              f1t_int = f1t_int, f2t_int = f2t_int,
+              f12t_int = f12t_int, Bsptlist = Bsptlist)
 }
 
 ################################################################
 
-B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
-                     f1_main, f2_main, ft_main,
-                     f12_int, f1t_int, f2t_int, f12t_int, 
-                     Bsptlist) {
+B_XZ_spt <- function(Bspt) {
   Xsptlist <- Zsptlist <- dsptlist <- csptlist <- list()
   names_Xj <- names_Zj <- names_dj <- names_cj <-NULL
+  sp1 <- Bspt$sp1
+  sp2 <- Bspt$sp2
+  time <- Bspt$time
+  nknotsspt <- Bspt$nknotsspt
+  pordspt <- Bspt$pordspt
+  decomspt <- Bspt$decomspt
+  bdegspt <- Bspt$bdegspt
+  Bsptlist <- Bspt$Bsptlist
+  psanova <- Bspt$psanova
+  f1_main <- Bspt$f1_main
+  f2_main <- Bspt$f2_main
+  ft_main <- Bspt$ft_main
+  f12_int <- Bspt$f12_int
+  f1t_int <- Bspt$f1t_int
+  f2t_int <- Bspt$f2t_int  
+  f12t_int <- Bspt$f12t_int  
+  nest_sp1 <- Bspt$nest_sp1
+  nest_sp2 <- Bspt$nest_sp2
+  nest_time <- Bspt$nest_time  
   cont <- 1
   for (j in 1:length(names(Bsptlist))) {
     Bj <- Bsptlist[[j]]
@@ -521,10 +573,11 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
       pord_term <- pordspt[3]
     }
     #if (!is.null(Bj)){
+      # attr(Bj, which = "x") <- x_term
+      # attr(Bj, which = "pord") <- pord_term
+      # attr(Bj, which = "decom") <- decomspt
       #print(name_Bj)
-      BtoXZ <- B_XZ(Bj, x = x_term,
-                    pord = pord_term,
-                    decom = decomspt)
+      BtoXZ <- B_XZ(Bj, x = x_term, pord = pord_term, decom = decomspt)
       Xj <- BtoXZ$X
       names_Xj <- c(names_Xj, paste("X", spt_term, sep = ""))
       Xsptlist[[cont]] <- Xj
@@ -546,7 +599,7 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
   names(dsptlist) <- names_dj
   names(csptlist) <- names_cj
   rm(Xj, Zj, dj, names_Xj, names_Zj, names_dj, names_cj)
-  if (!psanova){  # PS-ANOVA=FALSE
+  if (!psanova) {  # PS-ANOVA=FALSE
     X1 <- Xsptlist$Xsp1
     X2 <- Xsptlist$Xsp2
     Z1 <- Zsptlist$Zsp1
@@ -554,15 +607,15 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
     if (!is.null(time)) { #SPATIO-TEMPORAL TREND. NO PS-ANOVA
       Xt <- Xsptlist$Xtime
       Zt <- Zsptlist$Ztime
-      Xspt <- kronecker(Rten2(X1,X2),Xt)
+      Xspt <- Matrix::kronecker(Rten2(X1,X2),Xt)
       colnames(Xspt) <- paste("Xspt",1:ncol(Xspt),sep=".")
-      Zspt <- cbind(kronecker(Rten2(Z1,X2), Xt),
-                    kronecker(Rten2(X1,Z2), Xt),
-                    kronecker(Rten2(X1,X2), Zt),
-                    kronecker(Rten2(Z1,Z2), Xt),
-                    kronecker(Rten2(Z1,X2), Zt),
-                    kronecker(Rten2(X1,Z2), Zt),
-                    kronecker(Rten2(Z1,Z2), Zt))
+      Zspt <- cbind(Matrix::kronecker(Rten2(Z1,X2), Xt),
+                    Matrix::kronecker(Rten2(X1,Z2), Xt),
+                    Matrix::kronecker(Rten2(X1,X2), Zt),
+                    Matrix::kronecker(Rten2(Z1,Z2), Xt),
+                    Matrix::kronecker(Rten2(Z1,X2), Zt),
+                    Matrix::kronecker(Rten2(X1,Z2), Zt),
+                    Matrix::kronecker(Rten2(Z1,Z2), Zt))
       colnames(Zspt) <- paste("Zspt",1:ncol(Zspt), sep = ".")
       rm(Xt,Zt)
     } else { #SPATIAL TREND. NO PS-ANOVA
@@ -571,7 +624,7 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
       Zspt <- cbind(Rten2(X2, Z1), Rten2(Z2, X1), Rten2(Z2, Z1))
       colnames(Zspt) <- paste("Zspt", 1:ncol(Zspt), sep = ".")
     }
-    rm(X1,Z1)
+    rm(X1,Z1,X2,Z2)
   } else { # PS-ANOVA=TRUE
     X1 <- Xsptlist$Xsp1_main
     X2 <- Xsptlist$Xsp2_main
@@ -592,14 +645,14 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
       Zt.3 <- Zsptlist$Ztime_int3ord
       onet <- Xt[, 1, drop = FALSE]
       xt <- Xt[, -1, drop = FALSE]
-      Xones <- kronecker(Rten2(one1,one2), onet)
-      X_f1_main <- kronecker(Rten2(x1,one2), onet)
-      X_f2_main <- kronecker(Rten2(one1,x2),onet)
-      X_ft_main <- kronecker(Rten2(one1,one2),xt)
-      X_f12_int <- kronecker(Rten2(x1,x2),onet)
-      X_f1t_int <- kronecker(Rten2(x1,one2),xt)
-      X_f2t_int <- kronecker(Rten2(one1,x2),xt)
-      X_f12t_int <- kronecker(Rten2(x1,x2),xt)
+      Xones <- Matrix::kronecker(Rten2(one1,one2), onet)
+      X_f1_main <- Matrix::kronecker(Rten2(x1,one2), onet)
+      X_f2_main <- Matrix::kronecker(Rten2(one1,x2),onet)
+      X_ft_main <- Matrix::kronecker(Rten2(one1,one2),xt)
+      X_f12_int <- Matrix::kronecker(Rten2(x1,x2),onet)
+      X_f1t_int <- Matrix::kronecker(Rten2(x1,one2),xt)
+      X_f2t_int <- Matrix::kronecker(Rten2(one1,x2),xt)
+      X_f12t_int <- Matrix::kronecker(Rten2(x1,x2),xt)
       colnames(Xones) <- c("(Intercept)")
       colnames(X_f1_main) <- paste("X_f1_main", 1:ncol(X_f1_main), sep = ".")
       colnames(X_f2_main) <- paste("X_f2_main", 1:ncol(X_f2_main), sep = ".")
@@ -616,37 +669,37 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
       if(f1t_int) Xspt <- cbind(Xspt, X_f1t_int)
       if(f2t_int) Xspt <- cbind(Xspt, X_f2t_int)
       if(f12t_int) Xspt <- cbind(Xspt, X_f12t_int)
-      Z_f1_main <- kronecker(Rten2(Z1, one2), onet) # g1u
-      Z_f2_main <- kronecker(Rten2(one1, Z2), onet) # g2u
-      Z_ft_main <- kronecker(Rten2(one1, one2), Zt) # g3u
+      Z_f1_main <- Matrix::kronecker(Rten2(Z1, one2), onet) # g1u
+      Z_f2_main <- Matrix::kronecker(Rten2(one1, Z2), onet) # g2u
+      Z_ft_main <- Matrix::kronecker(Rten2(one1, one2), Zt) # g3u
       colnames(Z_f1_main) <- paste("Z_f1_main", 1:ncol(Z_f1_main), sep = ".")
       colnames(Z_f2_main) <- paste("Z_f2_main", 1:ncol(Z_f2_main), sep = ".")
       colnames(Z_ft_main) <- paste("Z_ft_main", 1:ncol(Z_ft_main), sep = ".")
       # g12u | g21u | g12b+g21b
-      Z_f12_int <- cbind(kronecker(Rten2(Z1.2, x2), onet),
-                     kronecker(Rten2(x1, Z2.2), onet),
-                     kronecker(Rten2(Z1.2, Z2.2), onet))
+      Z_f12_int <- cbind(Matrix::kronecker(Rten2(Z1.2, x2), onet),
+                         Matrix::kronecker(Rten2(x1, Z2.2), onet),
+                         Matrix::kronecker(Rten2(Z1.2, Z2.2), onet))
       colnames(Z_f12_int) <- paste("Z_f12_int", 1:ncol(Z_f12_int), sep = ".")
       # g13u | g31u | g13b+g31b
-      Z_f1t_int <- cbind(kronecker(Rten2(Z1.2, one2), xt),
-                     kronecker(Rten2(x1, one2), Zt.2),
-                     kronecker(Rten2(Z1.2, one2), Zt.2))
+      Z_f1t_int <- cbind(Matrix::kronecker(Rten2(Z1.2, one2), xt),
+                         Matrix::kronecker(Rten2(x1, one2), Zt.2),
+                         Matrix::kronecker(Rten2(Z1.2, one2), Zt.2))
       colnames(Z_f1t_int) <- paste("Z_f1t_int", 1:ncol(Z_f1t_int), sep = ".")
       # g23u | g32u | g23b+g32b
-      Z_f2t_int <- cbind(kronecker(Rten2(one1, Z2.2), xt),
-                     kronecker(Rten2(one1, x2), Zt.2),
-                     kronecker(Rten2(one1, Z2.2), Zt.2))
+      Z_f2t_int <- cbind(Matrix::kronecker(Rten2(one1, Z2.2), xt),
+                         Matrix::kronecker(Rten2(one1, x2), Zt.2),
+                         Matrix::kronecker(Rten2(one1, Z2.2), Zt.2))
       colnames(Z_f2t_int) <- paste("Z_f2t_int", 1:ncol(Z_f2t_int), sep=".")
       # g123u | g213u | g321u | g123b+g213b | g132b+g312b |
       # g231b+g321b | g1t+g2t+g3t
-      Z_f12t_int <- cbind(kronecker(Rten2(Z1.3, x2), xt),
-                      kronecker(Rten2(x1, Z2.3), xt),
-                      kronecker(Rten2(x1, x2), Zt.3),
-                      kronecker(Rten2(Z1.3, Z2.3), xt),
-                      kronecker(Rten2(Z1.3, x2), Zt.3),
-                      kronecker(Rten2(x1, Z2.3), Zt.3),
-                      kronecker(Rten2(Z1.3, Z2.3), Zt.3))
-      colnames(Z_f12t_int) <- paste("Z_f12t_int", 1:ncol(Z_f12t_int), 
+      Z_f12t_int <- cbind(Matrix::kronecker(Rten2(Z1.3, x2), xt),
+                          Matrix::kronecker(Rten2(x1, Z2.3), xt),
+                          Matrix::kronecker(Rten2(x1, x2), Zt.3),
+                          Matrix::kronecker(Rten2(Z1.3, Z2.3), xt),
+                          Matrix::kronecker(Rten2(Z1.3, x2), Zt.3),
+                          Matrix::kronecker(Rten2(x1, Z2.3), Zt.3),
+                          Matrix::kronecker(Rten2(Z1.3, Z2.3), Zt.3))
+      colnames(Z_f12t_int) <- paste("Z_f12t_int", 1:ncol(Z_f12t_int),
                                     sep = ".")
       Zspt <- NULL
       if(f1_main) Zspt <- cbind(Zspt,Z_f1_main)
@@ -656,7 +709,7 @@ B_XZ_spt <- function(sp1, sp2, time, pordspt, psanova, decomspt,
       if(f1t_int) Zspt <- cbind(Zspt,Z_f1t_int)
       if(f2t_int) Zspt <- cbind(Zspt,Z_f2t_int)
       if(f12t_int) Zspt <- cbind(Zspt,Z_f12t_int)
-      rm(X_f1_main, X_f2_main, X_ft_main, X_f12_int, X_f1t_int, X_f2t_int, 
+      rm(X_f1_main, X_f2_main, X_ft_main, X_f12_int, X_f1t_int, X_f2t_int,
          X_f12t_int)
       rm(Z_f1_main, Z_f2_main, Z_ft_main, Z_f12_int, Z_f1t_int, Z_f2t_int,
          Z_f12t_int)
